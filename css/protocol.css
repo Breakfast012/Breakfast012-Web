@@ -1,0 +1,1067 @@
+/* ==========================================================================
+   SWISS ARCHIVAL PROTOCOL // JIAYI WU (@Breakfast012)
+   References: masiliang.com & edgarrodriguez.xyz (Cargo.site Swiss Archive)
+   Strict Visual Rules:
+   - Paper-white gallery ground (#f6f5f2 / #ffffff)
+   - Pure black ink (#111111) & archival lead grey (#666666)
+   - Hairline 1px rules (#d8d6d0)
+   - ZERO border-radius, ZERO box-shadow, ZERO glow, ZERO badges/pills
+   ========================================================================== */
+
+:root {
+  --bg-paper: #f6f5f2;
+  --bg-white: #ffffff;
+  --bg-subtle: #eeece7;
+  --ink: #111111;
+  --ink-secondary: #333333;
+  --muted: #666666;
+  --rule: #d8d6d0;
+  --rule-dark: #111111;
+
+  --font-sans: "Neue Haas Grotesk Text Pro", "Neue Haas Grotesk Display Pro", "Neue Haas Unica", "Helvetica Neue", "Inter", Helvetica, Arial, sans-serif;
+  --font-mono: "JetBrains Mono", "Courier New", Courier, monospace;
+
+  --header-h: 42px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+html {
+  font-size: 13.5px;
+  line-height: 1.55;
+  background-color: var(--bg-paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--bg-paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 13.5px;
+  line-height: 1.55;
+  letter-spacing: -0.005em;
+  overflow-x: hidden;
+}
+
+a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
+}
+
+a:hover {
+  color: var(--muted);
+}
+
+button,
+input {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  outline: none;
+}
+
+button {
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   1. MINIMAL TOP HEADER BAR
+   ========================================================================== */
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  min-height: var(--header-h);
+  background-color: var(--bg-paper);
+  border-bottom: 1px solid var(--rule);
+  padding: 9px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.header-left {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.site-title {
+  font-weight: 600;
+  font-size: 13.5px;
+  letter-spacing: 0.03em;
+  text-decoration: none;
+  color: var(--ink);
+}
+
+.site-title:hover {
+  color: var(--ink);
+}
+
+.header-sep {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--muted);
+}
+
+.site-facet {
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  font-family: var(--font-mono);
+}
+
+.nav-group {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.nav-pipe {
+  color: var(--rule);
+  user-select: none;
+}
+
+.nav-slash {
+  color: var(--muted);
+  user-select: none;
+}
+
+.nav-link {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--muted);
+  padding: 1px 2px;
+  text-decoration: none;
+  letter-spacing: 0.01em;
+  border-bottom: 1px solid transparent;
+}
+
+.nav-link:hover {
+  color: var(--ink);
+}
+
+.nav-link.active {
+  color: var(--ink);
+  font-weight: 500;
+  border-bottom: 1px solid var(--ink);
+}
+
+/* ==========================================================================
+   2. COLLAPSIBLE INFO / CV DRAWER (EDGAR RODRIGUEZ STYLE)
+   ========================================================================== */
+
+.info-drawer {
+  display: none;
+  background-color: var(--bg-white);
+  border-bottom: 1px solid var(--ink);
+}
+
+.info-drawer.open {
+  display: block;
+}
+
+.info-drawer-inner {
+  padding: 20px 24px 36px;
+  max-width: 1680px;
+  margin: 0 auto;
+}
+
+.info-drawer-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 14px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.mono-label {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--muted);
+  letter-spacing: 0.02em;
+}
+
+.text-action-btn {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--ink);
+  text-decoration: none;
+  padding: 2px 0;
+}
+
+.text-action-btn:hover {
+  color: var(--muted);
+}
+
+.info-dual-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  gap: 44px;
+}
+
+.info-block {
+  margin-bottom: 26px;
+}
+
+.info-block:last-child {
+  margin-bottom: 0;
+}
+
+.clause-heading {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--ink);
+  letter-spacing: 0.03em;
+  padding-bottom: 6px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.info-text {
+  font-size: 13.5px;
+  line-height: 1.56;
+  color: var(--ink);
+  margin-bottom: 10px;
+}
+
+.muted-statement {
+  color: var(--muted);
+  border-left: 1px solid var(--ink);
+  padding-left: 12px;
+  margin-top: 12px;
+}
+
+.cv-table {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cv-row {
+  display: grid;
+  grid-template-columns: 92px 1fr;
+  gap: 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--bg-subtle);
+}
+
+.cv-date {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--muted);
+}
+
+.plain-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 13px;
+}
+
+.contact-lines {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.copy-inline-btn {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--muted);
+  margin-left: 6px;
+}
+
+.copy-inline-btn:hover {
+  color: var(--ink);
+}
+
+.pub-archive-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pub-archive-entry {
+  padding-bottom: 11px;
+  border-bottom: 1px solid var(--rule);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.pub-archive-entry:last-child {
+  border-bottom: none;
+}
+
+.pub-entry-meta {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 2px;
+}
+
+.pub-entry-title {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.pub-entry-venue {
+  color: var(--ink-secondary);
+  font-style: italic;
+}
+
+.pub-entry-authors {
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+.protocol-directions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.dir-item {
+  display: grid;
+  grid-template-columns: 32px 1fr;
+  gap: 8px;
+  font-size: 13px;
+  line-height: 1.48;
+}
+
+.mono-num {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--muted);
+}
+
+.muted-note {
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+/* ==========================================================================
+   3. MODE B: SWISS ARCHIVAL INDEX TABLE (EDGAR RODRIGUEZ STYLE)
+   ========================================================================== */
+
+.archive-main {
+  max-width: 1680px;
+  margin: 0 auto;
+}
+
+.index-section {
+  border-bottom: 1px solid var(--ink);
+  padding: 14px 24px 22px;
+  background-color: var(--bg-paper);
+}
+
+.index-section.collapsed .swiss-table-wrap {
+  display: none;
+}
+
+.index-section.collapsed {
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.index-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.index-section.collapsed .index-header-row {
+  margin-bottom: 0;
+}
+
+.index-header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.archive-search-input {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--ink);
+  border-bottom: 1px solid var(--ink);
+  padding: 2px 4px;
+  width: 290px;
+  background: transparent;
+}
+
+.archive-search-input::placeholder {
+  color: var(--muted);
+}
+
+.swiss-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.swiss-index-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  line-height: 1.4;
+  text-align: left;
+}
+
+.swiss-index-table thead th {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--muted);
+  padding: 6px 10px 6px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--ink);
+  white-space: nowrap;
+}
+
+.swiss-index-table tbody tr {
+  border-bottom: 1px solid var(--rule);
+  cursor: pointer;
+}
+
+.swiss-index-table tbody tr:hover {
+  background-color: var(--ink);
+  color: var(--bg-paper);
+}
+
+.swiss-index-table tbody tr:hover td,
+.swiss-index-table tbody tr:hover .mono-cell,
+.swiss-index-table tbody tr:hover .muted-cell {
+  color: var(--bg-paper);
+}
+
+.swiss-index-table td {
+  padding: 6px 10px 6px 0;
+  vertical-align: baseline;
+}
+
+.col-no {
+  width: 52px;
+}
+
+.col-year {
+  width: 84px;
+}
+
+.col-title {
+  width: 26%;
+  font-weight: 500;
+}
+
+.col-medium {
+  width: 34%;
+}
+
+.col-cat {
+  width: 13%;
+}
+
+.col-venue {
+  width: 20%;
+}
+
+.mono-cell {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--muted);
+}
+
+.muted-cell {
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+/* Floating Preview Window on Index Hover */
+.index-hover-preview {
+  position: fixed;
+  right: 32px;
+  bottom: 32px;
+  width: 340px;
+  background-color: var(--bg-white);
+  border: 1px solid var(--ink);
+  padding: 8px;
+  z-index: 300;
+  pointer-events: none;
+  display: none;
+}
+
+.index-hover-preview.visible {
+  display: block;
+}
+
+.index-hover-preview img {
+  width: 100%;
+  height: auto;
+  max-height: 240px;
+  object-fit: contain;
+  display: block;
+  background-color: var(--bg-subtle);
+}
+
+.index-hover-caption {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink);
+  margin-top: 6px;
+  line-height: 1.35;
+}
+
+/* ==========================================================================
+   4. MODE A: SPLIT-COLUMN PROTOCOL STREAM (MASILIANG.COM STYLE)
+   ========================================================================== */
+
+.stream-section {
+  width: 100%;
+}
+
+.protocol-item {
+  display: flex;
+  align-items: flex-start;
+  border-bottom: 1px solid var(--rule);
+  padding: 36px 24px 60px;
+  gap: 0;
+}
+
+/* Left 28% Sticky Metadata Column (masiliang.com exact rhythm) */
+.protocol-left {
+  width: 28%;
+  flex: 0 0 28%;
+  padding-right: 32px;
+}
+
+.protocol-sticky-meta {
+  position: sticky;
+  top: 58px;
+}
+
+.meta-ref-no {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 6px;
+  letter-spacing: 0.02em;
+}
+
+.meta-title {
+  font-family: var(--font-sans);
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.35;
+  margin-bottom: 4px;
+  letter-spacing: -0.01em;
+}
+
+.meta-slash-lines {
+  font-family: var(--font-sans);
+  font-size: 13.5px;
+  line-height: 1.48;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+
+.meta-venue-line {
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--ink-secondary);
+  margin-top: 2px;
+}
+
+.meta-year {
+  font-family: var(--font-sans);
+  font-size: 13.5px;
+  color: var(--ink);
+  margin-top: 4px;
+  margin-bottom: 16px;
+}
+
+.meta-extra-notes {
+  border-top: 1px solid var(--rule);
+  padding-top: 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.55;
+  color: var(--muted);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.meta-links-list {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.meta-links-list a {
+  color: var(--ink);
+  text-decoration: underline;
+}
+
+/* Right 72% Media & Protocol Clause Stream */
+.protocol-right {
+  width: 72%;
+  flex: 0 0 72%;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* Protocol Clauses Grid (01. SCOPE — 02. APPARATUS — 03. PROTOCOL — 04. RECORD) */
+.protocol-clauses-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px 32px;
+  border-top: 1px solid var(--ink);
+  border-bottom: 1px solid var(--rule);
+  padding: 16px 0 18px;
+}
+
+.protocol-clause {
+  font-size: 13.5px;
+  line-height: 1.56;
+  color: var(--ink);
+}
+
+.clause-tag {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--ink);
+  margin-right: 6px;
+  letter-spacing: 0.02em;
+}
+
+.clause-body {
+  color: var(--ink);
+}
+
+.clause-body.muted {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* Measured Telemetry / Benchmark Table (Clean Swiss Rule Table, NO HUD) */
+.protocol-metrics-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+
+.protocol-metrics-table th,
+.protocol-metrics-table td {
+  padding: 6px 12px 6px 0;
+  text-align: left;
+  border-bottom: 1px solid var(--rule);
+}
+
+.protocol-metrics-table th {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.protocol-metrics-table td {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+/* Interleaved Narrative Paragraph in Stream (masiliang.com style) */
+.protocol-interleaved-text {
+  max-width: 680px;
+  font-size: 13.5px;
+  line-height: 1.58;
+  color: var(--ink);
+}
+
+/* Video / Interactive Deck Embed Block */
+.protocol-embed-figure {
+  width: 100%;
+}
+
+.embed-aspect-box {
+  position: relative;
+  width: 100%;
+  padding-top: 56.25%;
+  background-color: var(--bg-subtle);
+  border: 1px solid var(--rule);
+}
+
+.embed-aspect-box iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+/* Uncropped High-Resolution Figure Block */
+.protocol-figure {
+  width: 100%;
+}
+
+.protocol-figure-img-wrap {
+  width: 100%;
+  background-color: var(--bg-subtle);
+  border: 1px solid var(--rule);
+  cursor: zoom-in;
+  overflow: hidden;
+}
+
+.protocol-figure-img-wrap img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Dual-column Figure Pair for Secondary Archival Plates */
+.protocol-figure-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+/* masiliang.com Signature Slash Figure Caption */
+.fig-caption {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--muted);
+  margin-top: 6px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.fig-caption-main {
+  color: var(--ink);
+}
+
+.fig-caption-sub {
+  color: var(--muted);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+/* Full Archive Record Expander at Bottom of Project */
+.archive-expander-bar {
+  border-top: 1px solid var(--rule);
+  padding-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.expand-archive-btn {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--ink);
+  padding: 5px 10px;
+  border: 1px solid var(--ink);
+  background-color: transparent;
+}
+
+.expand-archive-btn:hover {
+  background-color: var(--ink);
+  color: var(--bg-paper);
+}
+
+.expanded-archive-drawer {
+  display: none;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--rule);
+}
+
+.expanded-archive-drawer.open {
+  display: block;
+}
+
+.expanded-archive-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+}
+
+.expanded-archive-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+
+.expanded-grid-cell {
+  cursor: zoom-in;
+}
+
+.expanded-grid-cell img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border: 1px solid var(--rule);
+  background-color: var(--bg-subtle);
+}
+
+.expanded-grid-caption {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+/* Publications Stream Block */
+.pub-stream-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pub-protocol-card {
+  border-top: 1px solid var(--ink);
+  padding-top: 10px;
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 16px;
+}
+
+.pub-protocol-left {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.pub-protocol-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 3px;
+}
+
+.pub-protocol-venue {
+  font-size: 13px;
+  color: var(--ink-secondary);
+  margin-bottom: 3px;
+}
+
+.pub-protocol-authors {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.pub-protocol-abstract {
+  font-size: 13px;
+  color: var(--ink);
+  line-height: 1.54;
+}
+
+/* ==========================================================================
+   5. FOOTER & PURE ARCHIVAL 3840px LIGHTBOX
+   ========================================================================== */
+
+.site-footer {
+  border-top: 1px solid var(--ink);
+  padding: 18px 24px 28px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--muted);
+}
+
+.footer-inner {
+  max-width: 1680px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.lightbox-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  background-color: rgba(246, 245, 242, 0.98);
+  display: none;
+  flex-direction: column;
+}
+
+.lightbox-overlay.open {
+  display: flex;
+}
+
+.lightbox-bar {
+  height: 44px;
+  border-bottom: 1px solid var(--ink);
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background-color: var(--bg-paper);
+}
+
+.lightbox-meta {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lightbox-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+}
+
+.lightbox-stage {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  overflow: auto;
+  cursor: zoom-out;
+}
+
+.lightbox-stage img {
+  max-width: 100%;
+  max-height: calc(100vh - 96px);
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border: 1px solid var(--rule);
+  background-color: var(--bg-white);
+  cursor: default;
+}
+
+/* ==========================================================================
+   6. RESPONSIVE BREAKPOINTS
+   ========================================================================== */
+
+@media (max-width: 1024px) {
+  .info-dual-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .protocol-item {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .protocol-left {
+    width: 100%;
+    flex: none;
+    padding-right: 0;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 14px;
+  }
+
+  .protocol-sticky-meta {
+    position: static;
+  }
+
+  .protocol-right {
+    width: 100%;
+    flex: none;
+  }
+
+  .protocol-clauses-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .index-hover-preview {
+    display: none !important;
+  }
+}
+
+@media (max-width: 680px) {
+  .site-header {
+    padding: 10px 14px;
+  }
+
+  .index-section,
+  .protocol-item,
+  .info-drawer-inner,
+  .site-footer {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .protocol-figure-pair {
+    grid-template-columns: 1fr;
+  }
+
+  .pub-protocol-card {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .col-medium,
+  .col-venue {
+    display: none;
+  }
+}

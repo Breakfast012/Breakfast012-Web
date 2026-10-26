@@ -1,90 +1,561 @@
 /**
- * EMBODIED MOTION CONSOLE // Main Application Controller
- * Drives Identity Mode Filtering, Cinema Project Modal, 4K Lightbox,
- * Fullscreen Showreel Theater (16 Streams), and Raw 26-Page Archive Inspector.
+ * JIAYI WU (@Breakfast012) — SWISS ARCHIVAL PROTOCOL & PORTFOLIO INDEX
+ * Aesthetic & Structural References:
+ * - masiliang.com (28% sticky left slash-metadata + 72% right figure/video & clause stream)
+ * - edgarrodriguez.xyz (Swiss Index of Activities table with hover preview + dual-column Info/CV drawer)
  */
 (function () {
+  'use strict';
+
   const DATA = window.CONSOLE_DATA;
-  if (!DATA) {
-    console.error('CONSOLE_DATA not loaded.');
+  if (!DATA || !Array.isArray(DATA.projects)) {
+    console.error('CONSOLE_DATA missing or invalid.');
     return;
   }
 
-  let activeFilter = 'all';
-  let searchQuery = '';
-  let currentModalProject = null;
-  let modalGalleryMode = 'unique'; // 'unique' | 'raw'
-  let currentLightboxList = [];
-  let currentLightboxIdx = 0;
-
-  // DOM Elements
-  const projectsGrid = document.getElementById('projects-grid');
-  const pubSection = document.getElementById('publications-section');
-  const pubGrid = document.getElementById('publications-grid');
-  const hudModeLabel = document.getElementById('hud-active-mode');
-  const sectionTitleEl = document.getElementById('matrix-section-title');
-  const sectionMetaEl = document.getElementById('matrix-section-meta');
-  const searchInput = document.getElementById('project-search-input');
-
-  const MODE_TITLES = {
-    all: 'ALL EMBODIED & TECHNICAL WORKS // COMPLETE MATRIX',
-    tech: '01 // TECH & PIPELINE (UE5 C++/PYTHON · 3A MOCAP · RIGGING · VR)',
-    research: '02 // RESEARCH & PUBLICATIONS (IEEE TVCG · ISMAR · IEEE VRW · UCL/HKUST/UAL)',
-    art: '03 // IMMERSIVE ART & THEATRE (2023–2026 EXHIBITED WORKS)',
-    commercial: '04 // COMMERCIAL & DESIGN (BRAND COLLABORATIONS & VISUAL SYSTEMS)'
+  // ── 1. Curated masiliang.com / edgarrodriguez.xyz Metadata per Project ──
+  const PROTOCOL_META = {
+    'motion-forge-ue5': {
+      shortTitle: 'MOTION FORGE (v4.0)',
+      slashLines: [
+        'UE5 C++ / Python / Control Rig',
+        '/ SO(3) tangent denoising / C1-C2 IK lock',
+        '/ interactive salience propagation'
+      ],
+      venueLine: 'Unreal Engine 5.4+ Production Engine / UCL MPBE Collaboration',
+      yearLine: '2026–',
+      catLabel: 'SYSTEMS & MOCAP',
+      captions: [
+        'Still from the running system — UE5 Control Rig & custom Slate timeline.',
+        'Salience-guided keyframe extraction & 4D Echo propagation view.',
+        'Dual-bone IK foot-ground contact locking & C¹ soft-clamped trajectory.',
+        'Monocular video pose reconstruction with CoM support polygon stabilization.',
+        'Cross-skeleton kinematic retargeting & forearm swing-twist volume preservation.',
+        'Kimodo layer composition with 5th-order C² polynomial inertialization.'
+      ]
+    },
+    'tencent-3a-mocap-pipeline': {
+      shortTitle: '3A MOCAP & RETARGETING PIPELINE',
+      slashLines: [
+        'Vicon optical / Xsens inertial / Faceware',
+        '/ cross-skeleton kinematic retargeting',
+        '/ forearm swing-twist / FACS rigging'
+      ],
+      venueLine: 'Tencent Interactive Entertainment Group (IEGG), London',
+      yearLine: '2025–2026',
+      catLabel: 'SYSTEMS & MOCAP',
+      captions: [
+        'Optical & inertial capture volume calibration record.',
+        'Cross-skeleton kinematic retargeting & joint axis alignment.',
+        'High-density skeletal & FACS facial rig evaluation.',
+        'Production motion cleanup & foot-skate suppression pass.',
+        'Real-time UE5 character solver verification.',
+        'Multi-performer synchronization & timecode tracking.'
+      ]
+    },
+    'everymacbeth': {
+      shortTitle: 'EVERYMACBETH',
+      slashLines: [
+        'Interactive digital theatre / live mocap',
+        '/ real-time projection / spatial audio',
+        '/ algorithmic stage protocol'
+      ],
+      venueLine: 'London / Immersive Theatre Production',
+      yearLine: '2026',
+      catLabel: 'ART PRACTICE',
+      captions: [
+        'Stage installation & real-time projection view.',
+        'Performer kinematic tracking & virtual double.'
+      ]
+    },
+    'boundfusion': {
+      shortTitle: 'BOUNDFUSION',
+      slashLines: [
+        'VR installation / real-time body tracking',
+        '/ haptic feedback / custom shaders',
+        '/ sensorimotor coupling protocol'
+      ],
+      venueLine: 'IEEE VR 2026 XR Gallery Shortlisted',
+      yearLine: '2026',
+      catLabel: 'RESEARCH / ART',
+      captions: [
+        'Still from the running VR system — embodied shader field.',
+        'Studio installation & wearable haptic apparatus view.',
+        'Real-time body tracking & boundary dissolution state.',
+        'Participant sensorimotor interaction record.',
+        'Spatial calibration & multi-sensory feedback loop.',
+        'Exhibition documentation & HMD view.'
+      ]
+    },
+    'the-unchanging-change': {
+      shortTitle: 'THE UNCHANGING CHANGE',
+      slashLines: [
+        'Audiovisual performance / motion capture',
+        '/ generative particle dynamics',
+        '/ live choreographic system'
+      ],
+      venueLine: 'London / Live Performance & Moving Image',
+      yearLine: '2025',
+      catLabel: 'ART PRACTICE',
+      captions: [
+        'Live performance stream I — kinematic particle coupling.',
+        'Live performance stream II — temporal phase shift.',
+        'Still from the running projection system.'
+      ]
+    },
+    'terms-and-conditions': {
+      shortTitle: 'TERMS AND CONDITIONS',
+      slashLines: [
+        'Live motion capture / 25-min performance',
+        '/ digital doppelgänger / real-time avatar',
+        '/ choreographed spatial dialogue'
+      ],
+      venueLine: 'Riverside Studios London / Open Online Theatre Festival',
+      yearLine: '2025',
+      catLabel: 'SYSTEMS & MOCAP / ART',
+      captions: [
+        'Riverside Studios installation & live performance view.',
+        'Performer and digital doppelgänger spatial alignment.',
+        'Real-time motion capture solver & avatar projection.',
+        'Choreographed duet between biological body and rigged double.',
+        'Stage lighting & real-time rendering apparatus.',
+        'Rehearsal & optical/inertial calibration record.'
+      ]
+    },
+    'edenflux': {
+      shortTitle: 'EDENFLUX',
+      slashLines: [
+        'Full-body motion capture / ECG biofeedback',
+        '/ real-time heart-rate coupling',
+        '/ generative audiovisual environment'
+      ],
+      venueLine: 'University of the Arts London (UAL) / Embodied Systems',
+      yearLine: '2025',
+      catLabel: 'RESEARCH / SYSTEMS',
+      captions: [
+        'Real-time motion capture & physiological ECG telemetry view.',
+        'System architecture & biofeedback protocol documentation.'
+      ]
+    },
+    'erased-resistance': {
+      shortTitle: 'ERASED RESISTANCE',
+      slashLines: [
+        'Interactive installation / sensor network',
+        '/ archival media / spatial narrative',
+        '/ documentary protocol'
+      ],
+      venueLine: 'UAL People’s Prize for Equality and Diversity',
+      yearLine: '2025',
+      catLabel: 'ART PRACTICE',
+      captions: [
+        'Installation view & interactive archival protocol.',
+        'System documentation & design deck.'
+      ]
+    },
+    'boss-plz': {
+      shortTitle: 'BOSS PLZ (VR SYSTEM)',
+      slashLines: [
+        'VR interactive simulation / Unity C#',
+        '/ physics-based gesture interaction',
+        '/ spatial state machine'
+      ],
+      venueLine: 'Interactive VR System & Game Architecture',
+      yearLine: '2025',
+      catLabel: 'SYSTEMS & MOCAP',
+      captions: [
+        'Still from the running VR simulation.',
+        'Interactive physics & spatial rig setup.',
+        'Environment topology & lighting bake.',
+        'User hand-tracking & object manipulation test.',
+        'System walkthrough capture.'
+      ]
+    },
+    'vr-ai-multi-agent-roleplay': {
+      shortTitle: 'VR/AI MULTI-AGENT ROLEPLAY',
+      slashLines: [
+        'VR social simulation / LLM multi-agent',
+        '/ embodied avatar kinematics',
+        '/ behavioral telemetry protocol'
+      ],
+      venueLine: 'HKUST Visiting Research / IEEE VRW 2026 (First Author)',
+      yearLine: '2025–2026',
+      catLabel: 'RESEARCH',
+      captions: [
+        'Multi-agent VR interaction environment & autonomous avatar state.',
+        'Experimental protocol & behavioral telemetry recording.'
+      ]
+    },
+    'vr-body-mapping': {
+      shortTitle: 'VR BODY MAPPING PROTOCOL',
+      slashLines: [
+        'Embodied pedagogy / 3D spatial drawing',
+        '/ somatic affect evaluation',
+        '/ virtual environment protocol'
+      ],
+      venueLine: 'Tom Burns Memorial Award 1st Place / IEEE VRW 2026 (First Author)',
+      yearLine: '2025–2026',
+      catLabel: 'RESEARCH',
+      captions: [
+        'Situated 3D body-mapping session inside the virtual field.',
+        'Somatic annotation & spatial gesture trace.'
+      ]
+    },
+    'unseemly': {
+      shortTitle: 'UNSEEMLY',
+      slashLines: [
+        'Audiovisual installation / moving image',
+        '/ spatial projection / corporeal archive',
+        '/ multi-channel sound'
+      ],
+      venueLine: 'London / Exhibition & Moving Image Archive',
+      yearLine: '2024',
+      catLabel: 'ART PRACTICE',
+      captions: [
+        'Studio installation view — multi-channel projection.',
+        'Still from the running moving-image sequence.',
+        'Spatial framing & corporeal observation record.',
+        'Exhibition view & viewer proximity test.',
+        'Optical distortion & surface texture plate.',
+        'Archival sequence documentation.'
+      ]
+    },
+    'desert-drifter': {
+      shortTitle: 'DESERT DRIFTER',
+      slashLines: [
+        'Real-time 3D environment / virtual production',
+        '/ procedural terrain / kinematic camera',
+        '/ atmospheric simulation'
+      ],
+      venueLine: 'Digital Environment & Moving Image',
+      yearLine: '2024',
+      catLabel: 'ART PRACTICE',
+      captions: [
+        'Wide-field render from the real-time terrain simulation.',
+        'Atmospheric scattering & virtual camera trajectory.',
+        'Architectural ruin & surface shader study.',
+        'Sequence framing & lighting calibration.',
+        'Environmental detail plate.',
+        'Scene assembly documentation.'
+      ]
+    },
+    'endless': {
+      shortTitle: 'ENDLESS',
+      slashLines: [
+        'Generative visual system / recursive loop',
+        '/ spatial light study / digital media'
+      ],
+      venueLine: 'Digital Media & Visual Protocol',
+      yearLine: '2024',
+      catLabel: 'ART PRACTICE',
+      captions: [
+        'Still from the generative loop — state 01.',
+        'Still from the generative loop — state 02.',
+        'Spatial installation & screen calibration.'
+      ]
+    },
+    'blackbox': {
+      shortTitle: 'BLACKBOX',
+      slashLines: [
+        'Physical computing / ultrasonic & IR sensors',
+        '/ Arduino / real-time audiovisual feedback',
+        '/ enclosed spatial apparatus'
+      ],
+      venueLine: 'Interactive Sensor Installation',
+      yearLine: '2023',
+      catLabel: 'ART PRACTICE',
+      captions: [
+        'Physical enclosure & sensor array apparatus.',
+        'Internal optical/acoustic response during subject proximity.',
+        'Hardware wiring & microcontroller calibration.',
+        'Studio test of real-time feedback threshold.',
+        'Exhibition documentation view.',
+        'Structural detail of the black box unit.'
+      ]
+    },
+    'overseer': {
+      shortTitle: 'OVERSEER',
+      slashLines: [
+        'Computer vision / algorithmic gaze',
+        '/ surveillance apparatus / real-time tracking',
+        '/ installation document'
+      ],
+      venueLine: 'Media Installation & Vision System',
+      yearLine: '2023',
+      catLabel: 'ART PRACTICE',
+      captions: [
+        'Tracking interface & subject detection view.',
+        'Spatial camera rig & monitor arrangement.',
+        'Visual output from the observation protocol.',
+        'Subject trajectory & bounding-box record.',
+        'Installation perspective view.',
+        'System calibration plate.'
+      ]
+    },
+    'unexpected-ericaliga': {
+      shortTitle: 'UNEXPECTED × ERICALIGA',
+      slashLines: [
+        '3D visual direction / garment simulation',
+        '/ digital lookbook / CGI typography'
+      ],
+      venueLine: 'Commercial Collaboration / Ericaliga',
+      yearLine: '2024',
+      catLabel: 'COMMERCIAL',
+      captions: [
+        'Key visual plate 01 — cloth simulation & lighting.',
+        'Key visual plate 02 — typographic & material study.',
+        'Detail view of digital surface rendering.',
+        'Editorial layout & composite frame.',
+        'Series variation & color calibration.',
+        'Production still.'
+      ]
+    },
+    'tencent-music-wechat-spring-festival': {
+      shortTitle: 'TENCENT MUSIC × WECHAT',
+      slashLines: [
+        'Interactive campaign system / 3D motion graphics',
+        '/ real-time mobile visual assets',
+        '/ large-scale broadcast design'
+      ],
+      venueLine: 'Tencent Music Entertainment × WeChat',
+      yearLine: '2022',
+      catLabel: 'COMMERCIAL',
+      captions: [
+        'Main interactive interface & 3D key visual.',
+        'Character & asset modeling plate.',
+        'Motion sequence & mobile viewport adaptation.',
+        'Visual system modular specification.',
+        'Broadcast graphic package view.',
+        'Archival production plate.'
+      ]
+    },
+    'absolute-chill-jazz-concert': {
+      shortTitle: '“ABSOLUTE” CHILL JAZZ CONCERT',
+      slashLines: [
+        'Stage visual identity / live screen graphics',
+        '/ typographic system / print & digital'
+      ],
+      venueLine: 'Live Music Production & Visual Direction',
+      yearLine: '2023',
+      catLabel: 'COMMERCIAL',
+      captions: [
+        'Main stage identity & typographic system.',
+        'Spatial signage & collateral application.',
+        'Screen projection & lighting integration.',
+        'Print artifact documentation.',
+        'Series overview.'
+      ]
+    },
+    'angel-school': {
+      shortTitle: 'ANGEL SCHOOL',
+      slashLines: [
+        '3D spatial concept / look development',
+        '/ stylized architectural modelling',
+        '/ lighting & shader study'
+      ],
+      venueLine: 'Visual Direction & 3D Concept',
+      yearLine: '2022',
+      catLabel: 'COMMERCIAL',
+      captions: [
+        'Architectural exterior render — lighting state 01.',
+        'Interior spatial corridor & shader study.',
+        'Modular asset & prop breakdown.',
+        'Camera framing & color script.',
+        'Detail view of surface materials.',
+        'Concept archive plate.'
+      ]
+    },
+    'empty-space': {
+      shortTitle: 'EMPTY SPACE',
+      slashLines: [
+        'Spatial design / minimal architectural study',
+        '/ light & shadow calibration / 3D rendering'
+      ],
+      venueLine: 'Architectural & Spatial Study',
+      yearLine: '2021',
+      catLabel: 'COMMERCIAL',
+      captions: [
+        'Monolithic volume & grazing light study.',
+        'Interior void & proportion calibration.',
+        'Material texture & orthographic section.',
+        'Perspective sequence 04.',
+        'Perspective sequence 05.',
+        'Spatial archive plate.'
+      ]
+    },
+    'poster-design': {
+      shortTitle: 'POSTER ARCHIVE (2021–2024)',
+      slashLines: [
+        'Swiss & experimental typography / print media',
+        '/ grid systems / exhibition graphics'
+      ],
+      venueLine: 'Selected Graphic Commissions & Exhibitions',
+      yearLine: '2024',
+      catLabel: 'COMMERCIAL',
+      captions: [
+        'Poster plate 01 — typographic grid & hierarchy.',
+        'Poster plate 02 — exhibition identity.',
+        'Poster plate 03 — experimental letterform study.',
+        'Poster plate 04 — cultural event commission.',
+        'Poster plate 05 — print proof & halftone detail.',
+        'Poster plate 06 — series compilation.'
+      ]
+    },
+    'album-design': {
+      shortTitle: 'ALBUM PACKAGING & VISUAL ARCHIVE',
+      slashLines: [
+        'Record sleeve architecture / physical print',
+        '/ 3D sonic visualization / editorial layout'
+      ],
+      venueLine: 'Music Release Commissions',
+      yearLine: '2024',
+      catLabel: 'COMMERCIAL',
+      captions: [
+        'Cover plate 01 — physical sleeve & disc assembly.',
+        'Cover plate 02 — inner booklet & typographic spread.',
+        'Cover plate 03 — 3D form & lighting study.',
+        'Cover plate 04 — back cover tracklist protocol.',
+        'Cover plate 05 — packaging material detail.',
+        'Cover plate 06 — series archive.'
+      ]
+    }
   };
 
-  // ── 1. Initialize Hero Keyvisual Crossfader ──
-  function initHeroSlideshow() {
-    const container = document.getElementById('hero-keyvisual-backdrop');
-    if (!container) return;
-    const heroUrls = [
-      'https://cdn.myportfolio.com/d14b04bf-20f3-4c0d-8b9b-37e389bf6c6a/f85f5f7f-4805-4093-822f-ef5d5ab7c9b7_rw_3840.jpg?h=130dfd59e26f2528b32a3f7c465e8c92',
-      'https://cdn.myportfolio.com/d14b04bf-20f3-4c0d-8b9b-37e389bf6c6a/354e7dfd-66d2-4a2e-b265-c198f6322462_rw_3840.jpg?h=4d40435d37a5db4a1ea9f818b3917b5b',
-      'https://cdn.myportfolio.com/d14b04bf-20f3-4c0d-8b9b-37e389bf6c6a/7ce44fbf-ac59-4382-a118-44b6cb7de498_rw_3840.jpg?h=1b9f354aa80891e430e8ef40a31f6eee',
-      'https://cdn.myportfolio.com/d14b04bf-20f3-4c0d-8b9b-37e389bf6c6a/376f2fb5-a3a0-4f8b-b1b2-70e7df636009_rw_3840.jpg?h=f368097ca7aa0c7fe571824efa4fb308',
-      'https://cdn.myportfolio.com/d14b04bf-20f3-4c0d-8b9b-37e389bf6c6a/d1f70c2d-c2ff-41d6-9598-41b825f85563_rw_3840.png?h=e932ac2302f345af50aec93750d9a73e'
-    ];
-    heroUrls.forEach((u, i) => {
-      const div = document.createElement('div');
-      div.className = 'hero-keyvisual-slide' + (i === 0 ? ' active' : '');
-      div.style.backgroundImage = `url("${u}")`;
-      container.appendChild(div);
+  // ── 2. Deduplicate High-Resolution Master Figures per Project ──
+  function getResolutionScore(url) {
+    if (!url) return 0;
+    if (url.includes('_car_') || url.includes('_carw_')) return 10;
+    const m = url.match(/(?:_rw_|x)(\d{2,4})\.(?:jpg|jpeg|png|webp|gif)/i);
+    if (m) return parseInt(m[1], 10);
+    return 1000;
+  }
+
+  function extractDistinctFigures(project) {
+    const rawList = Array.isArray(project.raw_images) ? project.raw_images : [];
+    const byUuid = new Map();
+
+    rawList.forEach((url) => {
+      // Match the 2nd UUID in cdn.myportfolio.com/<site_uuid>/<img_uuid>_...
+      const m = url.match(/myportfolio\.com\/[^/]+\/([a-f0-9\-]+)_/i);
+      const key = m ? m[1] : url;
+      const isThumbCrop = url.includes('_car_202x158') || url.includes('_carw_202x158') || url.includes('x32.');
+      const score = getResolutionScore(url);
+
+      if (!byUuid.has(key)) {
+        byUuid.set(key, {
+          uuid: key,
+          bestUrl: url,
+          bestScore: score,
+          displayUrl: url,
+          displayScore: score,
+          isThumbCrop,
+          variants: [url]
+        });
+      } else {
+        const entry = byUuid.get(key);
+        entry.variants.push(url);
+        if (!isThumbCrop) entry.isThumbCrop = false;
+        if (score > entry.bestScore) {
+          entry.bestScore = score;
+          entry.bestUrl = url;
+        }
+        // Prefer 1920px or 3840px for crisp display
+        if (score >= 1200 && (entry.displayScore < 1200 || score > entry.displayScore)) {
+          entry.displayScore = score;
+          entry.displayUrl = url;
+        }
+      }
     });
-    let idx = 0;
-    const slides = container.querySelectorAll('.hero-keyvisual-slide');
-    setInterval(() => {
-      slides[idx].classList.remove('active');
-      idx = (idx + 1) % slides.length;
-      slides[idx].classList.add('active');
-    }, 6500);
+
+    let allGroups = Array.from(byUuid.values());
+    const nonCropGroups = allGroups.filter((g) => !g.isThumbCrop);
+    if (nonCropGroups.length > 0) {
+      allGroups = nonCropGroups;
+    }
+
+    if (allGroups.length === 0 && project.cover_url) {
+      allGroups.push({
+        uuid: 'cover',
+        bestUrl: project.cover_url,
+        displayUrl: project.cover_url,
+        bestScore: 3840,
+        variants: [project.cover_url]
+      });
+    }
+
+    return allGroups;
   }
 
-  // ── 2. Render Academic Publications ──
-  function renderPublications() {
-    if (!pubGrid) return;
-    pubGrid.innerHTML = DATA.publications.map((pub) => `
-      <article class="pub-card">
-        <div class="pub-badge-row">
-          <span class="pub-badge">${escapeHtml(pub.badge)}</span>
-          <span class="pub-year">${escapeHtml(pub.year)} · ${escapeHtml(pub.type)}</span>
-        </div>
-        <h3 class="pub-title">${escapeHtml(pub.title)}</h3>
-        <div class="pub-venue">${escapeHtml(pub.venue)}</div>
-        <div class="pub-authors">${escapeHtml(pub.authors)}</div>
-        <p class="pub-abstract">${escapeHtml(pub.abstract)}</p>
-        <div class="pub-tags">
-          ${pub.tags.map(t => `<span class="pub-tag">${escapeHtml(t)}</span>`).join('')}
-        </div>
-      </article>
-    `).join('');
+  function getValidEmbeds(project) {
+    const rawEmbeds = Array.isArray(project.embeds) ? project.embeds : [];
+    const seen = new Set();
+    const valid = [];
+    rawEmbeds.forEach((emb) => {
+      if (!emb || !emb.src) return;
+      // Exclude non-embeddable profile links
+      if (emb.src.includes('instagram.com/')) return;
+      const cleanKey = emb.src.split('&autoplay')[0];
+      if (seen.has(cleanKey)) return;
+      seen.add(cleanKey);
+      valid.push(emb);
+    });
+    return valid;
   }
 
-  // ── 3. Render Project Cards Matrix ──
+  // Enrich projects once at boot
+  const ENRICHED_PROJECTS = DATA.projects.map((p, idx) => {
+    const meta = PROTOCOL_META[p.id] || {
+      shortTitle: (p.title || '').toUpperCase(),
+      slashLines: (p.tech_stack || []).slice(0, 3).map((t, i) => (i === 0 ? t : `/ ${t}`)),
+      venueLine: p.role || 'London, UK',
+      yearLine: p.year || '2025',
+      catLabel: (p.categories || ['archive'])[0].toUpperCase(),
+      captions: []
+    };
+    const distinctFigures = extractDistinctFigures(p);
+    const validEmbeds = getValidEmbeds(p);
+    return {
+      ...p,
+      archiveIndex: idx + 1,
+      protocolMeta: meta,
+      distinctFigures,
+      validEmbeds
+    };
+  });
+
+  // ── 3. State Management ──
+  let activeCategory = 'all';
+  let searchQuery = '';
+  let currentLightboxItems = [];
+  let currentLightboxIndex = 0;
+
+  // DOM References
+  const indexSection = document.getElementById('index-section');
+  const indexStatusLine = document.getElementById('index-status-line');
+  const indexTbody = document.getElementById('swiss-index-tbody');
+  const btnCollapseIndex = document.getElementById('btn-collapse-index');
+  const searchInput = document.getElementById('archive-search');
+
+  const hoverPreview = document.getElementById('index-hover-preview');
+  const hoverImg = document.getElementById('index-hover-img');
+  const hoverCaption = document.getElementById('index-hover-caption');
+
+  const streamPubArticle = document.getElementById('protocol-publications');
+  const streamPubBody = document.getElementById('stream-publications-body');
+  const streamContainer = document.getElementById('protocol-stream-container');
+
+  const infoDrawer = document.getElementById('info-drawer');
+  const btnToggleInfo = document.getElementById('btn-toggle-info');
+  const btnCloseInfo = document.getElementById('btn-close-info');
+  const infoPubList = document.getElementById('info-publications-list');
+
+  // ── 4. Filter Projects ──
   function getFilteredProjects() {
-    return DATA.projects.filter((p) => {
-      const matchesCat = activeFilter === 'all' || (p.categories && p.categories.includes(activeFilter));
-      if (!matchesCat) return false;
+    return ENRICHED_PROJECTS.filter((p) => {
+      const catMatch =
+        activeCategory === 'all' ||
+        (Array.isArray(p.categories) && p.categories.includes(activeCategory));
+      if (!catMatch) return false;
+
       if (!searchQuery) return true;
       const q = searchQuery.toLowerCase();
       const hay = [
@@ -92,476 +563,662 @@
         p.subtitle,
         p.summary,
         p.year,
-        p.role,
+        p.protocolMeta.shortTitle,
+        p.protocolMeta.venueLine,
+        ...(p.protocolMeta.slashLines || []),
         ...(p.tech_stack || []),
         ...(p.awards || []),
         p.archive_full_text || ''
-      ].join(' ').toLowerCase();
+      ]
+        .join(' ')
+        .toLowerCase();
       return hay.includes(q);
     });
   }
 
-  function updateTabCounts() {
-    const counts = {
-      all: DATA.projects.length,
-      tech: DATA.projects.filter(p => p.categories.includes('tech')).length,
-      research: DATA.projects.filter(p => p.categories.includes('research')).length + DATA.publications.length,
-      art: DATA.projects.filter(p => p.categories.includes('art')).length,
-      commercial: DATA.projects.filter(p => p.categories.includes('commercial')).length
-    };
-    document.querySelectorAll('.identity-tab').forEach((btn) => {
-      const cat = btn.getAttribute('data-filter');
-      const pill = btn.querySelector('.count-pill');
-      if (pill && counts[cat] !== undefined) {
-        pill.textContent = counts[cat];
-      }
-    });
+  // ── 5. Render Info/CV Drawer Publications ──
+  function renderInfoPublications() {
+    if (!infoPubList || !Array.isArray(DATA.publications)) return;
+    infoPubList.innerHTML = DATA.publications
+      .map(
+        (pub, idx) => `
+        <div class="pub-archive-entry">
+          <div class="pub-entry-meta">[PUB.0${idx + 1}] // ${escapeHtml(pub.year)} — ${escapeHtml(pub.status)}</div>
+          <div class="pub-entry-title">${escapeHtml(pub.title)}</div>
+          <div class="pub-entry-venue">${escapeHtml(pub.venue)}</div>
+          <div class="pub-entry-authors">${escapeHtml(pub.authors)}</div>
+        </div>
+      `
+      )
+      .join('');
   }
 
-  function renderProjectsMatrix() {
-    if (!projectsGrid) return;
-    const list = getFilteredProjects();
-
-    // Show publications block prominently in 'research' or 'all' mode
-    if (pubSection) {
-      if (activeFilter === 'research' || activeFilter === 'all') {
-        pubSection.style.display = 'block';
-        // Put publications above project matrix when in Research mode
-        const parent = pubSection.parentElement;
-        const matrixSec = document.getElementById('matrix-section');
-        if (activeFilter === 'research' && parent && matrixSec) {
-          parent.insertBefore(pubSection, matrixSec);
-        } else if (activeFilter === 'all' && parent && matrixSec) {
-          parent.insertBefore(matrixSec, pubSection);
-        }
-      } else {
-        pubSection.style.display = 'none';
-      }
-    }
-
-    if (sectionTitleEl) {
-      sectionTitleEl.textContent = MODE_TITLES[activeFilter] || MODE_TITLES.all;
-    }
-    if (sectionMetaEl) {
-      sectionMetaEl.textContent = `SHOWING ${list.length} PROJECTS · CLICK ANY TERMINAL CARD FOR FULL VIDEOS & 4K STILLS`;
-    }
-    if (hudModeLabel) {
-      hudModeLabel.textContent = activeFilter.toUpperCase();
-    }
-
-    projectsGrid.innerHTML = list.map((p) => {
-      const metricsHtml = p.metrics ? `
-        <div class="card-metrics-row">
-          ${p.metrics.map(m => `
-            <div class="card-metric-item">
-              <span class="card-metric-val">${escapeHtml(m.value)}</span>
-              <span class="card-metric-lbl">${escapeHtml(m.label)}</span>
-            </div>
-          `).join('')}
+  // ── 6. Render Stream Publications Block (02. RESEARCH) ──
+  function renderStreamPublications() {
+    if (!streamPubBody || !Array.isArray(DATA.publications)) return;
+    streamPubBody.innerHTML = `
+      <div class="protocol-clauses-grid">
+        <div class="protocol-clause">
+          <span class="clause-tag">01. SCOPE</span>
+          <span class="clause-body">Peer-reviewed journal articles, first-author conference workshop papers, and juried XR exhibitions across IEEE TVCG, IEEE ISMAR, and IEEE VR.</span>
         </div>
-      ` : '';
+        <div class="protocol-clause">
+          <span class="clause-tag">02. INSTITUTIONS</span>
+          <span class="clause-body">University of the Arts London (UAL) / The Hong Kong University of Science and Technology (HKUST) / UCL Medical Physics &amp; Biomedical Engineering (MPBE).</span>
+        </div>
+      </div>
+      <div class="pub-stream-grid">
+        ${DATA.publications
+          .map(
+            (pub, idx) => `
+            <div class="pub-protocol-card">
+              <div class="pub-protocol-left">
+                <div>PUB // 0${idx + 1}</div>
+                <div>${escapeHtml(pub.year)}</div>
+                <div>${escapeHtml(pub.type)}</div>
+              </div>
+              <div class="pub-protocol-right">
+                <div class="pub-protocol-title">${escapeHtml(pub.title)}</div>
+                <div class="pub-protocol-venue">${escapeHtml(pub.venue)}</div>
+                <div class="pub-protocol-authors">${escapeHtml(pub.authors)} — [${escapeHtml(pub.status)}]</div>
+                <p class="pub-protocol-abstract">${escapeHtml(pub.abstract)}</p>
+              </div>
+            </div>
+          `
+          )
+          .join('')}
+      </div>
+    `;
+  }
 
-      return `
-        <article class="project-card ${p.pinned ? 'pinned-flagship' : ''}" data-project-id="${escapeHtml(p.id)}">
-          <div class="card-thumb-wrap">
-            <img class="card-thumb-img" src="${escapeHtml(p.cover_url)}" alt="${escapeHtml(p.title)}" loading="lazy" />
-            <div class="card-hud-top">
-              <span class="card-badge">${escapeHtml(p.featured_badge || 'PROJECT')}</span>
-              <span class="card-year-pill">${escapeHtml(p.year)}</span>
-            </div>
-            <div class="card-media-counts">
-              ${p.embed_count > 0 ? `<span class="media-count-chip video">▶ ${p.embed_count} STREAM${p.embed_count > 1 ? 'S' : ''}</span>` : ''}
-              <span class="media-count-chip">${p.unique_still_count} STILLS (${p.raw_image_count} RAW)</span>
-            </div>
-          </div>
-          <div class="card-body">
-            <h3 class="card-title">${escapeHtml(p.title)}</h3>
-            <div class="card-subtitle">${escapeHtml(p.subtitle)}</div>
-            <p class="card-summary">${escapeHtml(p.summary)}</p>
-            ${metricsHtml}
-            <div class="card-tech-tags">
-              ${(p.tech_stack || []).slice(0, 5).map(t => `<span class="tech-tag">${escapeHtml(t)}</span>`).join('')}
-            </div>
-            <div class="card-footer-cta">
-              <span>[ OPEN CINEMA TERMINAL ]</span>
-              <span>→</span>
-            </div>
-          </div>
-        </article>
-      `;
-    }).join('');
+  // ── 7. Render Mode B: Swiss Archival Index Table (edgarrodriguez.xyz style) ──
+  function renderIndexTable(filtered) {
+    if (!indexTbody) return;
 
-    projectsGrid.querySelectorAll('.project-card').forEach((card) => {
-      card.addEventListener('click', () => {
-        const pid = card.getAttribute('data-project-id');
-        const proj = DATA.projects.find(item => item.id === pid);
-        if (proj) openProjectModal(proj);
+    const totalRawFigs = filtered.reduce((acc, p) => acc + (p.raw_image_count || 0), 0);
+    const totalStreams = filtered.reduce((acc, p) => acc + p.validEmbeds.length, 0);
+
+    if (indexStatusLine) {
+      const catTag = activeCategory === 'all' ? 'ALL CATEGORIES' : activeCategory.toUpperCase();
+      indexStatusLine.textContent = `INDEX OF ACTIVITIES [${catTag}] // ${filtered.length} ARCHIVED WORKS · ${totalRawFigs} ARCHIVAL FIGURES · ${totalStreams} EMBEDDED STREAMS`;
+    }
+
+    indexTbody.innerHTML = filtered
+      .map((p) => {
+        const noStr = String(p.archiveIndex).padStart(2, '0');
+        const mediumStr = p.protocolMeta.slashLines
+          .join(' ')
+          .replace(/\s*\/\s*/g, ' / ')
+          .replace(/^\/\s*/, '');
+        const previewImg =
+          (p.distinctFigures[0] && p.distinctFigures[0].displayUrl) || p.cover_url || '';
+
+        return `
+          <tr
+            data-target-id="protocol-${escapeHtml(p.id)}"
+            data-preview-img="${escapeHtml(previewImg)}"
+            data-preview-caption="// REF. ${noStr} — ${escapeHtml(p.protocolMeta.shortTitle)} (${escapeHtml(p.protocolMeta.yearLine)})"
+          >
+            <td class="col-no mono-cell">${noStr}</td>
+            <td class="col-year mono-cell">${escapeHtml(p.protocolMeta.yearLine)}</td>
+            <td class="col-title">${escapeHtml(p.protocolMeta.shortTitle)}</td>
+            <td class="col-medium muted-cell">${escapeHtml(mediumStr)}</td>
+            <td class="col-cat mono-cell">${escapeHtml(p.protocolMeta.catLabel)}</td>
+            <td class="col-venue muted-cell">${escapeHtml(p.protocolMeta.venueLine)}</td>
+          </tr>
+        `;
+      })
+      .join('');
+
+    // Attach hover preview & click-to-scroll listeners
+    indexTbody.querySelectorAll('tr').forEach((row) => {
+      row.addEventListener('mouseenter', () => {
+        const imgUrl = row.getAttribute('data-preview-img');
+        const cap = row.getAttribute('data-preview-caption');
+        if (imgUrl && hoverPreview && hoverImg && hoverCaption) {
+          hoverImg.src = imgUrl;
+          hoverCaption.textContent = cap || '';
+          hoverPreview.classList.add('visible');
+        }
+      });
+
+      row.addEventListener('mouseleave', () => {
+        if (hoverPreview) hoverPreview.classList.remove('visible');
+      });
+
+      row.addEventListener('click', () => {
+        if (hoverPreview) hoverPreview.classList.remove('visible');
+        const targetId = row.getAttribute('data-target-id');
+        const targetEl = targetId ? document.getElementById(targetId) : null;
+        if (targetEl) {
+          targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
       });
     });
   }
 
-  // ── 4. Cinema Project Modal ──
-  const projectModalBackdrop = document.getElementById('project-modal');
-  const projectModalBody = document.getElementById('project-modal-body');
-  const projectModalBreadcrumb = document.getElementById('project-modal-breadcrumb');
-
-  function openProjectModal(proj) {
-    currentModalProject = proj;
-    modalGalleryMode = 'unique';
-    renderProjectModalContent();
-    projectModalBackdrop.classList.add('open');
-    document.body.style.overflow = 'hidden';
+  // ── 8. Render Mode A: Split-Column Protocol Stream (masiliang.com style) ──
+  function getFigureCaption(project, figIndex, totalMaster) {
+    const customList = project.protocolMeta.captions || [];
+    const baseText =
+      customList[figIndex] ||
+      (figIndex === 0
+        ? 'Still from the running system.'
+        : figIndex === 1
+        ? 'Studio installation & motion capture view.'
+        : figIndex === 2
+        ? 'Apparatus & spatial calibration record.'
+        : `Archival documentation plate ${String(figIndex + 1).padStart(2, '0')}.`);
+    const figNum = String(figIndex + 1).padStart(2, '0');
+    return `// Fig. ${figNum} ${baseText}`;
   }
 
-  function closeProjectModal() {
-    projectModalBackdrop.classList.remove('open');
-    // Stop any playing iframes by clearing container
-    if (projectModalBody) projectModalBody.innerHTML = '';
-    document.body.style.overflow = '';
-  }
+  function renderProtocolStream(filtered) {
+    if (!streamContainer) return;
 
-  function renderProjectModalContent() {
-    if (!currentModalProject || !projectModalBody) return;
-    const p = currentModalProject;
-    if (projectModalBreadcrumb) {
-      projectModalBreadcrumb.textContent = `TERMINAL // ${p.slug} // ${p.year} // ${p.unique_still_count} UNIQUE STILLS (${p.raw_image_count} ARCHIVE VARIANTS) · ${p.embed_count} EMBEDS`;
+    // Show or hide the Publications Protocol Section based on active filter
+    if (streamPubArticle) {
+      if (
+        (activeCategory === 'all' || activeCategory === 'research') &&
+        (!searchQuery ||
+          'ieee tvcg ismar vrw ucl hkust publication best paper'.includes(
+            searchQuery.toLowerCase()
+          ))
+      ) {
+        streamPubArticle.style.display = 'flex';
+        // Put publications at top when in RESEARCH mode, or after #2 project in ALL mode
+        const parent = streamContainer.parentElement;
+        if (activeCategory === 'research' && parent) {
+          parent.insertBefore(streamPubArticle, streamContainer);
+        } else if (parent) {
+          parent.appendChild(streamPubArticle);
+        }
+      } else {
+        streamPubArticle.style.display = 'none';
+      }
     }
 
-    // 1. Description & Architecture blocks
-    const extraBlocksHtml = (p.description_blocks || []).map(b => `<p>${escapeHtml(b)}</p>`).join('');
-    const archiveTextClean = p.archive_full_text && p.archive_full_text.length > 35
-      ? `<div style="margin-top:10px;padding:14px;background:rgba(0,240,255,0.04);border-left:2px solid var(--cyan);font-size:13.5px;color:#cbd5e1;">
-           <div class="meta-block-label">ORIGINAL ARCHIVE RECORD (${escapeHtml(p.slug)})</div>
-           ${escapeHtml(p.archive_full_text)}
-         </div>`
-      : '';
+    streamContainer.innerHTML = filtered
+      .map((p) => {
+        const noStr = String(p.archiveIndex).padStart(2, '0');
+        const meta = p.protocolMeta;
+        const distinctFigs = p.distinctFigures || [];
+        const rawImgs = p.raw_images || [];
+        const embeds = p.validEmbeds || [];
+        const descBlocks = p.description_blocks || [];
 
-    // 2. Collaborator Credits & External Links (including Instagram links!)
-    const igLinksHtml = (p.external_links && p.external_links.length > 0)
-      ? `<div class="credits-links-wrap">
-           ${p.external_links.map(l => `
-             <a class="credit-ig-link" href="${escapeHtml(l.href)}" target="_blank" rel="noopener noreferrer">
-               <span>↗</span> ${escapeHtml(l.text || l.href)}
-             </a>
-           `).join('')}
-         </div>`
-      : `<span style="font-size:12.5px;color:var(--silver-muted);">Solo / Lead Author (@Breakfast012)</span>`;
+        // Left Sticky Column: exact masiliang.com slash-separated metadata format
+        const slashLinesHtml = meta.slashLines
+          .map((line) => `<div>${escapeHtml(line)}</div>`)
+          .join('');
 
-    // 3. Embedded Videos & Canva Decks
-    const embedsHtml = (p.embeds && p.embeds.length > 0) ? `
-      <div class="modal-embeds-section">
-        <div class="meta-block-label" style="font-size:13px;">EMBEDDED MEDIA STREAMS & INTERACTIVE DECKS (${p.embeds.length})</div>
-        ${p.embeds.map((emb, idx) => `
-          <div class="embed-player-card">
-            <div class="embed-player-header">
-              <span>STREAM #0${idx + 1} // ${escapeHtml(emb.title || emb.type.toUpperCase())}</span>
-              <a class="hud-btn" href="${escapeHtml(emb.src)}" target="_blank" rel="noopener noreferrer">OPEN STREAM IN NEW TAB ↗</a>
+        // External / Collaborator links
+        const extLinks = (p.external_links || []).slice(0, 6);
+        const extLinksHtml =
+          extLinks.length > 0
+            ? `<div class="meta-links-list">
+                 ${extLinks
+                   .map(
+                     (l) =>
+                       `<a href="${escapeHtml(l.href)}" target="_blank" rel="noopener noreferrer">${escapeHtml(
+                         l.text || 'Link'
+                       )} ↗</a>`
+                   )
+                   .join('')}
+               </div>`
+            : '';
+
+        // Right Column Clause 01–04
+        const apparatusStr = (p.tech_stack || []).join(' / ') || meta.slashLines.join(' ');
+        const protocolClauseText =
+          descBlocks.length > 0
+            ? descBlocks[0].replace(/^\d+\.\s*/, '')
+            : p.subtitle || 'Executed under controlled studio & real-time engine parameters.';
+        const recordClauseText = [
+          p.role ? `Role: ${p.role}.` : '',
+          p.awards && p.awards.length ? `Recognition: ${p.awards.join('; ')}.` : '',
+          `Archive: ${distinctFigs.length} master plates (${rawImgs.length} total resolution records) · ${embeds.length} embedded stream(s).`
+        ]
+          .filter(Boolean)
+          .join(' ');
+
+        // Optional Swiss Benchmark Table (for technical systems with quantitative metrics)
+        const metricsTableHtml =
+          Array.isArray(p.metrics) && p.metrics.length > 0
+            ? `<table class="protocol-metrics-table" aria-label="Measured System Parameters">
+                 <thead>
+                   <tr>
+                     <th>PARAMETER / METRIC</th>
+                     ${p.metrics.map((m) => `<th>${escapeHtml(m.label.toUpperCase())}</th>`).join('')}
+                   </tr>
+                 </thead>
+                 <tbody>
+                   <tr>
+                     <td class="mono-cell">MEASURED VALUE</td>
+                     ${p.metrics.map((m) => `<td>${escapeHtml(m.value)}</td>`).join('')}
+                   </tr>
+                 </tbody>
+               </table>`
+            : '';
+
+        // Embedded Video / Canva Streams (16:9 full width in stream)
+        const embedsStreamHtml = embeds
+          .map((emb, eIdx) => {
+            const streamLabel =
+              emb.title || `${emb.type ? emb.type.toUpperCase() : 'STREAM'} RECORD`;
+            const streamFigNo = String(eIdx + 1).padStart(2, '0');
+            return `
+              <div class="protocol-embed-figure">
+                <div class="embed-aspect-box">
+                  <iframe
+                    src="${escapeHtml(emb.src)}"
+                    title="${escapeHtml(streamLabel)}"
+                    allow="autoplay; fullscreen; picture-in-picture"
+                    allowfullscreen
+                    loading="lazy"
+                  ></iframe>
+                </div>
+                <div class="fig-caption">
+                  <span class="fig-caption-main">// Stream ${streamFigNo} — ${escapeHtml(streamLabel)}.</span>
+                  <a href="${escapeHtml(emb.src)}" target="_blank" rel="noopener noreferrer" class="fig-caption-sub">[ OPEN STREAM ↗ ]</a>
+                </div>
+              </div>
+            `;
+          })
+          .join('');
+
+        // Primary Figures in the Right Stream (show up to 5 distinct high-res figures directly, interleaved with protocol clauses)
+        const primaryCount = Math.min(distinctFigs.length, 5);
+        const primaryFigs = distinctFigs.slice(0, primaryCount);
+        const streamFiguresBlocks = [];
+
+        primaryFigs.forEach((fig, fIdx) => {
+          const captionText = getFigureCaption(p, fIdx, distinctFigs.length);
+          streamFiguresBlocks.push(`
+            <figure class="protocol-figure">
+              <div
+                class="protocol-figure-img-wrap"
+                data-project-id="${escapeHtml(p.id)}"
+                data-fig-mode="distinct"
+                data-fig-index="${fIdx}"
+              >
+                <img
+                  src="${escapeHtml(fig.displayUrl)}"
+                  alt="${escapeHtml(p.title)} — Figure ${fIdx + 1}"
+                  loading="lazy"
+                />
+              </div>
+              <figcaption class="fig-caption">
+                <span class="fig-caption-main">${escapeHtml(captionText)}</span>
+                <span class="fig-caption-sub">[ 3840px / HD PLATE · CLICK TO INSPECT ]</span>
+              </figcaption>
+            </figure>
+          `);
+
+          // Interleave additional protocol text blocks between figures (exact masiliang.com rhythm)
+          if (fIdx === 0 && descBlocks.length > 1) {
+            streamFiguresBlocks.push(`
+              <div class="protocol-interleaved-text">
+                <span class="clause-tag">03.1 PROCEDURE —</span>
+                ${escapeHtml(descBlocks.slice(1).join(' '))}
+              </div>
+            `);
+          } else if (
+            fIdx === 1 &&
+            p.archive_full_text &&
+            p.archive_full_text.length > 45 &&
+            p.archive_full_text !== p.summary
+          ) {
+            streamFiguresBlocks.push(`
+              <div class="protocol-interleaved-text">
+                <span class="clause-tag">04.1 ARCHIVAL TEXT —</span>
+                ${escapeHtml(p.archive_full_text)}
+              </div>
+            `);
+          }
+        });
+
+        // Full Archive Record Expander (for all raw figures / remaining master plates)
+        const hasMoreFigures = rawImgs.length > primaryCount || distinctFigs.length > primaryCount;
+        const expanderHtml = hasMoreFigures
+          ? `
+            <div class="archive-expander-wrap">
+              <div class="archive-expander-bar">
+                <span class="mono-label">
+                  ARCHIVE RECORD // SHOWING ${primaryCount} OF ${distinctFigs.length} DISTINCT MASTER PLATES (${rawImgs.length} TOTAL ARCHIVE FILES)
+                </span>
+                <button
+                  type="button"
+                  class="expand-archive-btn"
+                  data-expand-project="${escapeHtml(p.id)}"
+                  data-total-raw="${rawImgs.length}"
+                  data-total-distinct="${distinctFigs.length}"
+                >
+                  [ + EXPAND FULL ARCHIVE RECORD (${rawImgs.length} FIGURES) ]
+                </button>
+              </div>
+              <div class="expanded-archive-drawer" id="drawer-${escapeHtml(p.id)}" data-mode="distinct"></div>
             </div>
-            <div class="embed-responsive-16x9">
-              <iframe src="${escapeHtml(emb.src)}" allowfullscreen allow="autoplay; fullscreen; picture-in-picture" loading="lazy"></iframe>
+          `
+          : '';
+
+        return `
+          <article class="protocol-item" id="protocol-${escapeHtml(p.id)}">
+            <!-- Left 28% Sticky Metadata Column (masiliang.com format) -->
+            <div class="protocol-left">
+              <div class="protocol-sticky-meta">
+                <div class="meta-ref-no">REF // ${noStr} · ${escapeHtml(meta.catLabel)}</div>
+                <h2 class="meta-title">${escapeHtml(meta.shortTitle)}</h2>
+                <div class="meta-slash-lines">
+                  ${slashLinesHtml}
+                </div>
+                <div class="meta-venue-line">${escapeHtml(meta.venueLine)}</div>
+                <div class="meta-year">${escapeHtml(meta.yearLine)}</div>
+
+                <div class="meta-extra-notes">
+                  <div>FIGURES: ${distinctFigs.length} MASTER / ${rawImgs.length} RAW</div>
+                  ${embeds.length > 0 ? `<div>STREAMS: ${embeds.length} EMBEDDED</div>` : ''}
+                  <div><a href="#top">↑ INDEX OF ACTIVITIES</a></div>
+                </div>
+                ${extLinksHtml}
+              </div>
             </div>
-          </div>
-        `).join('')}
+
+            <!-- Right 72% Media & Protocol Clause Stream -->
+            <div class="protocol-right">
+              <div class="protocol-clauses-grid">
+                <div class="protocol-clause">
+                  <span class="clause-tag">01. SCOPE</span>
+                  <span class="clause-body">${escapeHtml(p.summary)}</span>
+                </div>
+                <div class="protocol-clause">
+                  <span class="clause-tag">02. APPARATUS</span>
+                  <span class="clause-body">${escapeHtml(apparatusStr)}</span>
+                </div>
+                <div class="protocol-clause">
+                  <span class="clause-tag">03. PROTOCOL</span>
+                  <span class="clause-body">${escapeHtml(protocolClauseText)}</span>
+                </div>
+                <div class="protocol-clause">
+                  <span class="clause-tag">04. RECORD</span>
+                  <span class="clause-body muted">${escapeHtml(recordClauseText)}</span>
+                </div>
+              </div>
+
+              ${metricsTableHtml}
+              ${embedsStreamHtml}
+              ${streamFiguresBlocks.join('')}
+              ${expanderHtml}
+            </div>
+          </article>
+        `;
+      })
+      .join('');
+
+    // Bind figure lightbox clicks in stream
+    streamContainer.querySelectorAll('.protocol-figure-img-wrap').forEach((wrap) => {
+      wrap.addEventListener('click', () => {
+        const pid = wrap.getAttribute('data-project-id');
+        const fIdx = parseInt(wrap.getAttribute('data-fig-index') || '0', 10);
+        openProjectLightbox(pid, 'distinct', fIdx);
+      });
+    });
+
+    // Bind [ + EXPAND FULL ARCHIVE RECORD (N FIGURES) ] buttons
+    streamContainer.querySelectorAll('.expand-archive-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const pid = btn.getAttribute('data-expand-project');
+        const totalRaw = btn.getAttribute('data-total-raw');
+        const drawer = document.getElementById(`drawer-${pid}`);
+        if (!drawer) return;
+
+        const isOpen = drawer.classList.contains('open');
+        if (isOpen) {
+          drawer.classList.remove('open');
+          btn.textContent = `[ + EXPAND FULL ARCHIVE RECORD (${totalRaw} FIGURES) ]`;
+        } else {
+          drawer.classList.add('open');
+          btn.textContent = `[ − COLLAPSE ARCHIVE RECORD (${totalRaw} FIGURES) ]`;
+          renderExpandedArchiveDrawer(pid, 'raw');
+        }
+      });
+    });
+  }
+
+  // ── 9. Render Expanded Full Archive Contact Sheet ──
+  function renderExpandedArchiveDrawer(projectId, mode) {
+    const proj = ENRICHED_PROJECTS.find((p) => p.id === projectId);
+    const drawer = document.getElementById(`drawer-${projectId}`);
+    if (!proj || !drawer) return;
+
+    drawer.setAttribute('data-mode', mode);
+    const distinctList = proj.distinctFigures || [];
+    const rawList = proj.raw_images || [];
+
+    const items =
+      mode === 'distinct'
+        ? distinctList.map((f, i) => ({
+            thumb: f.displayUrl,
+            full: f.bestUrl,
+            caption: `// Fig. ${String(i + 1).padStart(2, '0')} Master Plate (${f.variants.length} res)`
+          }))
+        : rawList.map((u, i) => ({
+            thumb: u,
+            full: u,
+            caption: `// Archive Record #${String(i + 1).padStart(2, '0')}`
+          }));
+
+    drawer.innerHTML = `
+      <div class="expanded-archive-controls">
+        <span>FULL ARCHIVAL CONTACT SHEET // ${escapeHtml(proj.protocolMeta.shortTitle)} (${items.length} RECORDS)</span>
+        <div style="display:flex;gap:12px;">
+          <button type="button" class="nav-link ${mode === 'raw' ? 'active' : ''}" data-drawer-mode="raw">
+            ALL ARCHIVE FILES (${rawList.length})
+          </button>
+          <span class="nav-slash">/</span>
+          <button type="button" class="nav-link ${mode === 'distinct' ? 'active' : ''}" data-drawer-mode="distinct">
+            UNIQUE MASTER PLATES (${distinctList.length})
+          </button>
+        </div>
       </div>
-    ` : '';
-
-    // 4. High-Res Waterfall Gallery
-    const galleryItems = modalGalleryMode === 'unique'
-      ? p.unique_stills.map((s, idx) => ({
-          display: s.display_url,
-          full: s.full_url,
-          label: `${s.max_res_label} (${s.variant_count} vars)`,
-          idx
-        }))
-      : p.raw_images.map((u, idx) => ({
-          display: u,
-          full: u,
-          label: `RAW #${idx + 1}`,
-          idx
-        }));
-
-    currentLightboxList = galleryItems;
-
-    projectModalBody.innerHTML = `
-      <div class="modal-hero-header">
-        <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;">
-          <span class="card-badge">${escapeHtml(p.featured_badge || 'PROJECT')}</span>
-          <span class="card-year-pill">${escapeHtml(p.year)}</span>
-          <span class="card-year-pill">${escapeHtml(p.role || 'Jiayi Wu (@Breakfast012)')}</span>
-        </div>
-        <h2 class="modal-title">${escapeHtml(p.title)}</h2>
-        <div class="modal-subtitle">${escapeHtml(p.subtitle)}</div>
-      </div>
-
-      <div class="modal-info-grid">
-        <div class="modal-desc-box">
-          <p>${escapeHtml(p.summary)}</p>
-          ${extraBlocksHtml}
-          ${archiveTextClean}
-        </div>
-        <aside class="modal-meta-sidebar">
-          ${p.awards && p.awards.length > 0 ? `
-            <div>
-              <div class="meta-block-label">AWARDS & RECOGNITION</div>
-              <ul style="padding-left:16px;font-size:13px;color:#f8fafc;display:flex;flex-direction:column;gap:6px;">
-                ${p.awards.map(a => `<li>${escapeHtml(a)}</li>`).join('')}
-              </ul>
+      <div class="expanded-archive-grid">
+        ${items
+          .map(
+            (it, idx) => `
+            <div class="expanded-grid-cell" data-cell-idx="${idx}">
+              <img src="${escapeHtml(it.thumb)}" alt="${escapeHtml(proj.title)} record ${idx + 1}" loading="lazy" />
+              <div class="expanded-grid-caption">${escapeHtml(it.caption)}</div>
             </div>
-          ` : ''}
-          <div>
-            <div class="meta-block-label">TECHNICAL STACK & PIPELINE</div>
-            <div class="card-tech-tags" style="padding-top:2px;">
-              ${(p.tech_stack || []).map(t => `<span class="tech-tag">${escapeHtml(t)}</span>`).join('')}
-            </div>
-          </div>
-          <div>
-            <div class="meta-block-label">COLLABORATOR CREDITS & EXTERNAL LINKS</div>
-            ${igLinksHtml}
-          </div>
-          <div>
-            <div class="meta-block-label">LEGACY ARCHIVE SOURCE</div>
-            <a class="credit-ig-link" href="${escapeHtml(p.original_url)}" target="_blank" rel="noopener noreferrer">
-              ↗ ${escapeHtml(p.original_url)}
-            </a>
-          </div>
-        </aside>
-      </div>
-
-      ${embedsHtml}
-
-      <div>
-        <div class="modal-gallery-header">
-          <div>
-            <div class="section-kicker">HIGH-RESOLUTION WATERFALL GALLERY // CLICK ANY STILL FOR 3840px 4K LIGHTBOX</div>
-            <div style="font-family:var(--font-mono);font-size:12px;color:var(--silver-muted);">
-              Showing ${galleryItems.length} images (${p.unique_still_count} unique master stills · ${p.raw_image_count} total raw archive URLs)
-            </div>
-          </div>
-          <div class="gallery-mode-btns">
-            <button type="button" class="hud-btn ${modalGalleryMode === 'unique' ? 'active-mode-btn' : ''}" id="btn-gallery-unique" style="${modalGalleryMode === 'unique' ? 'background:var(--cyan);color:#07080c;font-weight:700;' : ''}">
-              MASTER HIGH-RES STILLS (${p.unique_still_count})
-            </button>
-            <button type="button" class="hud-btn ${modalGalleryMode === 'raw' ? 'active-mode-btn' : ''}" id="btn-gallery-raw" style="${modalGalleryMode === 'raw' ? 'background:var(--cyan);color:#07080c;font-weight:700;' : ''}">
-              ALL RAW ARCHIVE URLS (${p.raw_image_count})
-            </button>
-          </div>
-        </div>
-
-        <div class="gallery-waterfall" style="margin-top:20px;">
-          ${galleryItems.map((item, i) => `
-            <div class="waterfall-item" data-lb-index="${i}">
-              <img src="${escapeHtml(item.display)}" alt="${escapeHtml(p.title)} still ${i + 1}" loading="lazy" />
-              <span class="waterfall-item-overlay">🔍 ${escapeHtml(item.label)}</span>
-            </div>
-          `).join('')}
-        </div>
+          `
+          )
+          .join('')}
       </div>
     `;
 
-    const btnUnique = document.getElementById('btn-gallery-unique');
-    const btnRaw = document.getElementById('btn-gallery-raw');
-    if (btnUnique) {
-      btnUnique.addEventListener('click', () => {
-        modalGalleryMode = 'unique';
-        renderProjectModalContent();
+    drawer.querySelectorAll('[data-drawer-mode]').forEach((mBtn) => {
+      mBtn.addEventListener('click', () => {
+        const nextMode = mBtn.getAttribute('data-drawer-mode') || 'raw';
+        renderExpandedArchiveDrawer(projectId, nextMode);
       });
-    }
-    if (btnRaw) {
-      btnRaw.addEventListener('click', () => {
-        modalGalleryMode = 'raw';
-        renderProjectModalContent();
-      });
-    }
+    });
 
-    projectModalBody.querySelectorAll('.waterfall-item').forEach((el) => {
-      el.addEventListener('click', () => {
-        const i = parseInt(el.getAttribute('data-lb-index'), 10) || 0;
-        openLightbox(i);
+    drawer.querySelectorAll('.expanded-grid-cell').forEach((cell) => {
+      cell.addEventListener('click', () => {
+        const idx = parseInt(cell.getAttribute('data-cell-idx') || '0', 10);
+        openProjectLightbox(projectId, mode, idx);
       });
     });
   }
 
-  // ── 5. 4K Lightbox Inspector ──
-  const lightboxBackdrop = document.getElementById('lightbox-modal');
+  // ── 10. Pure Archival 3840px Lightbox ──
+  const lightboxOverlay = document.getElementById('lightbox-overlay');
   const lightboxImg = document.getElementById('lightbox-img');
-  const lightboxCaption = document.getElementById('lightbox-caption');
-  const lightboxRawLink = document.getElementById('lightbox-raw-link');
+  const lightboxMeta = document.getElementById('lightbox-meta');
+  const lightboxRaw = document.getElementById('lightbox-raw');
+  const lightboxStage = document.getElementById('lightbox-stage');
 
-  function openLightbox(index) {
-    if (!currentLightboxList.length) return;
-    currentLightboxIdx = (index + currentLightboxList.length) % currentLightboxList.length;
-    const item = currentLightboxList[currentLightboxIdx];
-    if (lightboxImg) lightboxImg.src = item.full;
-    if (lightboxCaption) {
-      lightboxCaption.textContent = `STILL [${currentLightboxIdx + 1} / ${currentLightboxList.length}] // ${item.label}`;
+  function openProjectLightbox(projectId, mode, index) {
+    const proj = ENRICHED_PROJECTS.find((p) => p.id === projectId);
+    if (!proj) return;
+
+    if (mode === 'raw') {
+      currentLightboxItems = (proj.raw_images || []).map((u, i) => ({
+        url: u,
+        caption: `${proj.protocolMeta.shortTitle} (${proj.protocolMeta.yearLine}) — // Archive Record ${String(
+          i + 1
+        ).padStart(2, '0')} of ${proj.raw_images.length}`
+      }));
+    } else {
+      currentLightboxItems = (proj.distinctFigures || []).map((f, i) => ({
+        url: f.bestUrl,
+        caption: `${proj.protocolMeta.shortTitle} (${proj.protocolMeta.yearLine}) — ${getFigureCaption(
+          proj,
+          i,
+          proj.distinctFigures.length
+        )}`
+      }));
     }
-    if (lightboxRawLink) lightboxRawLink.href = item.full;
-    lightboxBackdrop.classList.add('open');
+
+    if (currentLightboxItems.length === 0) return;
+    showLightboxItem(index);
+    if (lightboxOverlay) {
+      lightboxOverlay.classList.add('open');
+      lightboxOverlay.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  function showLightboxItem(index) {
+    if (!currentLightboxItems.length) return;
+    currentLightboxIndex =
+      (index + currentLightboxItems.length) % currentLightboxItems.length;
+    const item = currentLightboxItems[currentLightboxIndex];
+    if (lightboxImg) lightboxImg.src = item.url;
+    if (lightboxMeta) {
+      lightboxMeta.textContent = `[${currentLightboxIndex + 1}/${currentLightboxItems.length}] ${item.caption}`;
+    }
+    if (lightboxRaw) lightboxRaw.href = item.url;
   }
 
   function closeLightbox() {
-    lightboxBackdrop.classList.remove('open');
+    if (!lightboxOverlay) return;
+    lightboxOverlay.classList.remove('open');
+    lightboxOverlay.setAttribute('aria-hidden', 'true');
     if (lightboxImg) lightboxImg.src = '';
+    document.body.style.overflow = '';
   }
 
   document.getElementById('lightbox-close')?.addEventListener('click', closeLightbox);
-  document.getElementById('lightbox-prev')?.addEventListener('click', () => openLightbox(currentLightboxIdx - 1));
-  document.getElementById('lightbox-next')?.addEventListener('click', () => openLightbox(currentLightboxIdx + 1));
-
-  // ── 6. Fullscreen Showreel Theater Modal (All 16 Streams) ──
-  const showreelModal = document.getElementById('showreel-modal');
-  const showreelIframeWrap = document.getElementById('showreel-iframe-container');
-  const showreelPlaylistEl = document.getElementById('showreel-playlist');
-
-  const SHOWREEL_STREAMS = [
-    { title: '01 // Terms & Conditions — Live Mocap Performance (Vimeo Master)', src: 'https://player.vimeo.com/video/1122830992?h=c3a8d9f297&autoplay=1' },
-    { title: '02 // BoundFusion — IEEE VR 2026 XR Gallery Shortlisted (Adobe CCV)', src: 'https://www-ccv.adobe.io/v1/player/ccv/7fp5gfLe3Zu/embed?bgcolor=%23191919&lazyLoading=true&api_key=BehancePro2View' },
-    { title: '03 // EveryMacbeth (2026) — Interactive Theatre System (Adobe CCV)', src: 'https://www-ccv.adobe.io/v1/player/ccv/W9fqAZfxxRD/embed?bgcolor=%23191919&lazyLoading=true&api_key=BehancePro2View' },
-    { title: '04 // Edenflux (2025) — Full-Body Mocap × Heart-Rate Biofeedback (Adobe CCV)', src: 'https://www-ccv.adobe.io/v1/player/ccv/6A-Bue48ZnB/embed?bgcolor=%23191919&lazyLoading=true&api_key=BehancePro2View' },
-    { title: '05 // Boss Plz - VR Game — Walkthrough Stream A (Adobe CCV)', src: 'https://www-ccv.adobe.io/v1/player/ccv/3U6hUQ_7v7k/embed?bgcolor=%23191919&lazyLoading=true&api_key=BehancePro2View' },
-    { title: '06 // Boss Plz - VR Game — Walkthrough Stream B (Adobe CCV)', src: 'https://www-ccv.adobe.io/v1/player/ccv/R5_dXe3w4cn/embed?bgcolor=%23191919&lazyLoading=true&api_key=BehancePro2View' },
-    { title: '07 // VR/AI Multi-Agent Roleplay System — Prototype (YouTube)', src: 'https://www.youtube.com/embed/KnA0x_jgTgM?si=vtzLh9Sj9sNZVjoB' },
-    { title: '08 // VR Body Mapping - Pedagogy Practice — Award Winner (Adobe CCV)', src: 'https://www-ccv.adobe.io/v1/player/ccv/8RgB8XFPxQR/embed?bgcolor=%23191919&lazyLoading=true&api_key=BehancePro2View' },
-    { title: '09 // The Unchanging Change — Performance Stream I (Adobe CCV)', src: 'https://www-ccv.adobe.io/v1/player/ccv/MGJnHvEE-aN/embed?bgcolor=%23191919&lazyLoading=true&api_key=BehancePro2View' },
-    { title: '10 // The Unchanging Change — Performance Stream II (Adobe CCV)', src: 'https://www-ccv.adobe.io/v1/player/ccv/6pczgjvRhsL/embed?bgcolor=%23191919&lazyLoading=true&api_key=BehancePro2View' },
-    { title: '11 // The Unchanging Change — Performance Stream III (Adobe CCV)', src: 'https://www-ccv.adobe.io/v1/player/ccv/U5jnPNPF3MQ/embed?bgcolor=%23191919&lazyLoading=true&api_key=BehancePro2View' },
-    { title: '12 // Unseemly (2024) — Audiovisual Installation (Adobe CCV)', src: 'https://www-ccv.adobe.io/v1/player/ccv/IRshBPPvJty/embed?bgcolor=%23191919&lazyLoading=true&api_key=BehancePro2View' },
-    { title: '13 // BlackBox (2023) — Sensor Installation Stream (Adobe CCV)', src: 'https://www-ccv.adobe.io/v1/player/ccv/Bdj-Undjhh7/embed?bgcolor=%23191919&lazyLoading=true&api_key=BehancePro2View' },
-    { title: '14 // Edenflux — Interactive Research Deck (Canva Embed)', src: 'https://www.canva.com/design/DAGpQouIYew/9TNOfoQ5DWYwOBBzjLzM3Q/view?embed' },
-    { title: '15 // Erased Resistance — Interactive Design Deck (Canva Embed)', src: 'https://www.canva.com/design/DAGmkcAMvNw/0JaV_n9CvwnMf12wLqPQkA/view?embed' }
-  ];
-
-  function openShowreelTheater(streamIdx = 0) {
-    if (!showreelModal) return;
-    showreelModal.classList.add('open');
-    document.body.style.overflow = 'hidden';
-    selectShowreelStream(streamIdx);
-  }
-
-  function selectShowreelStream(idx) {
-    const item = SHOWREEL_STREAMS[idx] || SHOWREEL_STREAMS[0];
-    if (showreelIframeWrap) {
-      showreelIframeWrap.innerHTML = `<iframe src="${escapeHtml(item.src)}" allowfullscreen allow="autoplay; fullscreen; picture-in-picture"></iframe>`;
-    }
-    if (showreelPlaylistEl) {
-      showreelPlaylistEl.innerHTML = SHOWREEL_STREAMS.map((s, i) => `
-        <button type="button" class="identity-tab ${i === idx ? 'active' : ''}" style="width:100%;justify-content:flex-start;text-align:left;" data-stream-idx="${i}">
-          ${escapeHtml(s.title)}
-        </button>
-      `).join('');
-      showreelPlaylistEl.querySelectorAll('button').forEach((b) => {
-        b.addEventListener('click', () => {
-          selectShowreelStream(parseInt(b.getAttribute('data-stream-idx'), 10));
-        });
-      });
-    }
-  }
-
-  function closeShowreelTheater() {
-    if (!showreelModal) return;
-    showreelModal.classList.remove('open');
-    if (showreelIframeWrap) showreelIframeWrap.innerHTML = '';
-    document.body.style.overflow = '';
-  }
-
-  document.getElementById('btn-open-showreel')?.addEventListener('click', () => openShowreelTheater(0));
-  document.getElementById('hud-btn-showreel')?.addEventListener('click', () => openShowreelTheater(0));
-  document.getElementById('showreel-close-btn')?.addEventListener('click', closeShowreelTheater);
-
-  // ── 7. Raw Archive Inspector Modal (26 Pages / 731 Images / 16 Embeds) ──
-  const archiveModal = document.getElementById('archive-inspector-modal');
-  const archiveModalBody = document.getElementById('archive-inspector-body');
-
-  function openArchiveInspector() {
-    if (!archiveModal || !archiveModalBody) return;
-    archiveModalBody.innerHTML = `
-      <div style="margin-bottom:20px;">
-        <div class="section-kicker">VERIFIED ARCHIVE INTEGRITY // 100% ZERO-OMISSION AUDIT</div>
-        <h2 class="modal-title" style="font-size:1.75rem;">breakfast012.com Full Crawl Inventory (26 Pages · 731 Raw Image URLs · 16 Embeds)</h2>
-        <p style="font-size:13.5px;color:var(--silver-muted);margin-top:6px;">
-          Every single page, image resolution variant, iframe video player, Canva deck, and collaborator link crawled in
-          <code>breakfast012_full_archive.json</code> is preserved below and in <code>data/breakfast012_full_archive.json</code>.
-        </p>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:14px;">
-        ${DATA.all_archive_pages.map((pg, idx) => `
-          <details style="background:rgba(14,20,34,0.85);border:1px solid rgba(0,240,255,0.22);border-radius:4px;padding:12px 16px;">
-            <summary style="cursor:pointer;font-family:var(--font-mono);font-size:12.5px;color:var(--cyan);font-weight:600;">
-              [${String(idx + 1).padStart(2, '0')}] ${escapeHtml(pg.path)} — ${escapeHtml(pg.title)} (${pg.image_count} raw images · ${pg.embed_count} embeds)
-            </summary>
-            <div style="margin-top:12px;font-size:12.5px;color:#cbd5e1;display:flex;flex-direction:column;gap:8px;">
-              <div><strong>Original URL:</strong> <a href="${escapeHtml(pg.url)}" target="_blank" style="color:var(--cyan);">${escapeHtml(pg.url)}</a></div>
-              ${pg.embeds.length ? `<div><strong>Embeds (${pg.embeds.length}):</strong><ul style="padding-left:18px;">${pg.embeds.map(e => `<li><a href="${escapeHtml(e.src)}" target="_blank" style="color:var(--cyan);">${escapeHtml(e.src)}</a></li>`).join('')}</ul></div>` : ''}
-              <div><strong>All ${pg.image_count} Raw Image CDN URLs:</strong></div>
-              <div style="max-height:180px;overflow-y:auto;background:#05070c;padding:8px;border:1px solid rgba(255,255,255,0.08);font-family:var(--font-mono);font-size:11px;">
-                ${pg.images.map((u, k) => `<div>${k + 1}. <a href="${escapeHtml(u)}" target="_blank" style="color:#94a3b8;">${escapeHtml(u)}</a></div>`).join('')}
-              </div>
-            </div>
-          </details>
-        `).join('')}
-      </div>
-    `;
-    archiveModal.classList.add('open');
-    document.body.style.overflow = 'hidden';
-  }
-
-  document.getElementById('hud-btn-archive')?.addEventListener('click', openArchiveInspector);
-  document.getElementById('archive-close-btn')?.addEventListener('click', () => {
-    archiveModal.classList.remove('open');
-    document.body.style.overflow = '';
+  document.getElementById('lightbox-prev')?.addEventListener('click', () =>
+    showLightboxItem(currentLightboxIndex - 1)
+  );
+  document.getElementById('lightbox-next')?.addEventListener('click', () =>
+    showLightboxItem(currentLightboxIndex + 1)
+  );
+  lightboxStage?.addEventListener('click', (e) => {
+    if (e.target === lightboxStage) closeLightbox();
   });
 
-  // ── 8. Event Listeners for Filter Tabs, Search, Escape Key & Copy Email ──
-  document.querySelectorAll('.identity-tab[data-filter]').forEach((btn) => {
+  // ── 11. Header Controls: View Mode, Category Filters, Info Drawer, Search ──
+  const btnModeIndex = document.getElementById('btn-mode-index');
+  const btnModeStream = document.getElementById('btn-mode-stream');
+
+  function setIndexCollapsed(collapsed) {
+    if (!indexSection || !btnCollapseIndex) return;
+    if (collapsed) {
+      indexSection.classList.add('collapsed');
+      btnCollapseIndex.textContent = '[ SHOW INDEX ↓ ]';
+    } else {
+      indexSection.classList.remove('collapsed');
+      btnCollapseIndex.textContent = '[ HIDE INDEX ↑ ]';
+    }
+  }
+
+  btnCollapseIndex?.addEventListener('click', () => {
+    const isCollapsed = indexSection?.classList.contains('collapsed');
+    setIndexCollapsed(!isCollapsed);
+  });
+
+  btnModeIndex?.addEventListener('click', () => {
+    btnModeIndex.classList.add('active');
+    btnModeStream?.classList.remove('active');
+    setIndexCollapsed(false);
+    indexSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  btnModeStream?.addEventListener('click', () => {
+    btnModeStream.classList.add('active');
+    btnModeIndex?.classList.remove('active');
+    const streamSec = document.getElementById('stream-section');
+    streamSec?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  // Category filter buttons
+  document.querySelectorAll('[data-filter]').forEach((btn) => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('.identity-tab[data-filter]').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('[data-filter]').forEach((b) => b.classList.remove('active'));
       btn.classList.add('active');
-      activeFilter = btn.getAttribute('data-filter') || 'all';
-      renderProjectsMatrix();
+      activeCategory = btn.getAttribute('data-filter') || 'all';
+      renderAll();
     });
   });
 
-  if (searchInput) {
-    searchInput.addEventListener('input', (e) => {
-      searchQuery = e.target.value.trim();
-      renderProjectsMatrix();
-    });
+  // Info / CV Drawer toggle
+  function toggleInfoDrawer(forceState) {
+    if (!infoDrawer || !btnToggleInfo) return;
+    const willOpen =
+      typeof forceState === 'boolean'
+        ? forceState
+        : !infoDrawer.classList.contains('open');
+    if (willOpen) {
+      infoDrawer.classList.add('open');
+      infoDrawer.setAttribute('aria-hidden', 'false');
+      btnToggleInfo.classList.add('active');
+      btnToggleInfo.setAttribute('aria-expanded', 'true');
+      infoDrawer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    } else {
+      infoDrawer.classList.remove('open');
+      infoDrawer.setAttribute('aria-hidden', 'true');
+      btnToggleInfo.classList.remove('active');
+      btnToggleInfo.setAttribute('aria-expanded', 'false');
+    }
   }
 
-  document.getElementById('project-modal-close')?.addEventListener('click', closeProjectModal);
-  projectModalBackdrop?.addEventListener('click', (e) => {
-    if (e.target === projectModalBackdrop) closeProjectModal();
+  btnToggleInfo?.addEventListener('click', () => toggleInfoDrawer());
+  btnCloseInfo?.addEventListener('click', () => toggleInfoDrawer(false));
+
+  // Search Input
+  searchInput?.addEventListener('input', (e) => {
+    searchQuery = (e.target.value || '').trim();
+    renderAll();
   });
 
-  window.addEventListener('keydown', (e) => {
-    if (lightboxBackdrop?.classList.contains('open')) {
-      if (e.key === 'Escape') closeLightbox();
-      if (e.key === 'ArrowLeft') openLightbox(currentLightboxIdx - 1);
-      if (e.key === 'ArrowRight') openLightbox(currentLightboxIdx + 1);
-      return;
-    }
-    if (projectModalBackdrop?.classList.contains('open') && e.key === 'Escape') {
-      closeProjectModal();
-    }
-    if (showreelModal?.classList.contains('open') && e.key === 'Escape') {
-      closeShowreelTheater();
-    }
-    if (archiveModal?.classList.contains('open') && e.key === 'Escape') {
-      archiveModal.classList.remove('open');
-      document.body.style.overflow = '';
-    }
-  });
-
-  document.querySelectorAll('[data-copy-email]').forEach((btn) => {
+  // Copy email buttons
+  document.querySelectorAll('[data-copy]').forEach((btn) => {
     btn.addEventListener('click', () => {
-      const email = btn.getAttribute('data-copy-email');
-      if (navigator.clipboard && email) {
-        navigator.clipboard.writeText(email);
-        const orig = btn.innerHTML;
-        btn.innerHTML = `✓ COPIED: ${escapeHtml(email)}`;
-        setTimeout(() => { btn.innerHTML = orig; }, 1800);
+      const val = btn.getAttribute('data-copy');
+      if (val && navigator.clipboard) {
+        navigator.clipboard.writeText(val);
+        const orig = btn.textContent;
+        btn.textContent = '[COPIED]';
+        setTimeout(() => {
+          btn.textContent = orig;
+        }, 1600);
       }
     });
+  });
+
+  // Keyboard shortcuts for Lightbox & Drawer
+  window.addEventListener('keydown', (e) => {
+    if (lightboxOverlay?.classList.contains('open')) {
+      if (e.key === 'Escape') closeLightbox();
+      if (e.key === 'ArrowLeft') showLightboxItem(currentLightboxIndex - 1);
+      if (e.key === 'ArrowRight') showLightboxItem(currentLightboxIndex + 1);
+      return;
+    }
+    if (e.key === 'Escape' && infoDrawer?.classList.contains('open')) {
+      toggleInfoDrawer(false);
+    }
   });
 
   function escapeHtml(str) {
@@ -573,9 +1230,14 @@
       .replace(/'/g, '&#39;');
   }
 
+  function renderAll() {
+    const filtered = getFilteredProjects();
+    renderIndexTable(filtered);
+    renderProtocolStream(filtered);
+  }
+
   // Boot
-  initHeroSlideshow();
-  updateTabCounts();
-  renderPublications();
-  renderProjectsMatrix();
+  renderInfoPublications();
+  renderStreamPublications();
+  renderAll();
 })();

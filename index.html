@@ -3,389 +3,199 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>JIAYI WU // BREAKFAST012 — Embodied Motion Console · Technical Artist &amp; XR Researcher</title>
-  <meta name="description" content="Portfolio &amp; Embodied Motion Console of Jiayi Wu (@Breakfast012) — Technical Artist (Tencent IEGG Rank #1), Mocap &amp; Rigging Pipeline Engineer, and Embodied Media Researcher (IEEE TVCG Best Paper Award ISMAR 2026, IEEE VR 2026 XR Gallery, UAL First-Class Honours 1st)." />
+  <title>Jiayi Wu (@Breakfast012) — Portfolio &amp; Archive</title>
+  <meta name="description" content="Jiayi Wu (@Breakfast012) — Interdisciplinary artist and designer working at the intersection of immersive media, sensor-based interaction, and social storytelling." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;family=Space+Grotesk:wght@600;700;800&amp;display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/console.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:ital,wght@0,400;0,500;1,400&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/protocol.css" />
 </head>
 <body>
 
-  <!-- Dynamic 3D Mocap Point-Cloud & Trajectory Background Canvas -->
-  <canvas id="bg-skeleton-canvas"></canvas>
-  <div class="hud-grid-overlay"></div>
-
   <!-- ====================================================================
-       TOP TERMINAL HUD STATUS BAR
+       MINIMAL HEADER BAR (CARGO / SWISS ARCHIVAL PROTOCOL)
        ==================================================================== -->
-  <header class="hud-topbar">
-    <a href="#top" class="hud-brand">
-      <span class="hud-pulse-dot"></span>
-      <span>EMBODIED MOTION CONSOLE // JIAYI WU (@Breakfast012)</span>
-    </a>
-
-    <div class="hud-telemetry">
-      <div class="hud-metric">
-        <span class="hud-metric-label">WORLD_XYZ:</span>
-        <span class="hud-metric-val" id="hud-coords">0.0, 0.0, 0.0</span>
-      </div>
-      <div class="hud-metric">
-        <span class="hud-metric-label">SOLVER_FPS:</span>
-        <span class="hud-metric-val emerald" id="hud-fps">60.0 FPS</span>
-      </div>
-      <div class="hud-metric">
-        <span class="hud-metric-label">IDENTITY_MODE:</span>
-        <span class="hud-metric-val" id="hud-active-mode">ALL</span>
-      </div>
-      <div class="hud-metric">
-        <span class="hud-metric-label">ARCHIVE:</span>
-        <span class="hud-metric-val">731 STILLS · 16 STREAMS</span>
-      </div>
+  <header class="site-header" id="top">
+    <div class="header-left">
+      <a href="#top" class="site-title" id="brand-home-link">JIAYI WU</a>
+      <span class="header-sep">//</span>
+      <span class="site-facet">@Breakfast012</span>
     </div>
 
-    <div class="hud-quick-actions">
-      <button type="button" class="hud-btn" id="hud-btn-showreel">▶ SHOWREEL THEATER (15)</button>
-      <button type="button" class="hud-btn" id="hud-btn-archive">▤ RAW ARCHIVE (731)</button>
-      <a href="#about-terminal" class="hud-btn">CONTACT // BIO</a>
-    </div>
+    <nav class="header-nav" aria-label="Portfolio Navigation">
+      <div class="nav-group nav-group-filter" role="group" aria-label="Category Filter">
+        <button type="button" class="nav-link active" data-filter="all">ALL</button>
+        <span class="nav-slash">/</span>
+        <button type="button" class="nav-link" data-filter="work">WORK</button>
+        <span class="nav-slash">/</span>
+        <button type="button" class="nav-link" data-filter="research">RESEARCH</button>
+        <span class="nav-slash">/</span>
+        <button type="button" class="nav-link" data-filter="collaboration">COLLABORATION</button>
+      </div>
+
+      <span class="nav-pipe">|</span>
+
+      <div class="nav-group nav-group-mode" role="group" aria-label="View Mode">
+        <button type="button" class="nav-link active" data-view-mode="both" id="btn-mode-both">ALL VIEWS</button>
+        <span class="nav-slash">/</span>
+        <button type="button" class="nav-link" data-view-mode="index" id="btn-mode-index">INDEX</button>
+        <span class="nav-slash">/</span>
+        <button type="button" class="nav-link" data-view-mode="stream" id="btn-mode-stream">STREAM</button>
+      </div>
+
+      <span class="nav-pipe">|</span>
+
+      <div class="nav-group nav-group-info">
+        <button type="button" class="nav-link" id="btn-toggle-info" aria-expanded="false">INFO</button>
+      </div>
+    </nav>
   </header>
 
   <!-- ====================================================================
-       HERO SECTION (OPTION 2: FULLSCREEN SHOWREEL MONTAGE + TERMINAL HUD)
+       COLLAPSIBLE INFO DRAWER (ORIGINAL /CONTACT BIO & CHANNELS)
        ==================================================================== -->
-  <section class="hero-section" id="top">
-    <div class="hero-media-backdrop">
-      <!-- 4K High-Res Keyvisual Crossfader -->
-      <div id="hero-keyvisual-backdrop"></div>
-      <!-- Muted Auto-Looping Representative Mocap Showreel Stream (Vimeo) -->
-      <div class="hero-video-iframe-wrap">
-        <iframe
-          src="https://player.vimeo.com/video/1122830992?h=c3a8d9f297&amp;background=1&amp;autoplay=1&amp;loop=1&amp;byline=0&amp;title=0&amp;muted=1"
-          allow="autoplay; fullscreen"
-          title="Jiayi Wu Mocap Showreel Background"
-        ></iframe>
+  <section class="info-drawer" id="info-drawer" aria-hidden="true">
+    <div class="info-drawer-inner">
+      <div class="info-drawer-topbar">
+        <span class="mono-label">INFO &amp; CONTACT // JIAYI WU (@Breakfast012)</span>
+        <button type="button" class="text-action-btn" id="btn-close-info">[ − CLOSE INFO ]</button>
       </div>
-      <!-- Live 60FPS 3D Articulated Skeleton & IK Lock Wireframe Overlay -->
-      <canvas id="hero-mocap-canvas"></canvas>
-      <div class="hero-vignette"></div>
-    </div>
 
-    <div class="hero-content">
-      <div class="hero-terminal-frame">
-        <div class="hero-sys-header">
-          <span class="hero-sys-tag">
-            <span class="hud-pulse-dot"></span>
-            SYS.ONLINE // LONDON, UK · UE5 C++/PYTHON · VICON / XSENS / FACEWARE · XR RESEARCH
-          </span>
-          <span>SOLVER: SO(3) TANGENT DENOISE + C¹ LEG SOFT-CLAMP + C² INERTIALIZATION</span>
-        </div>
-
-        <h1 class="hero-title">
-          JIAYI WU <span class="slash">//</span> <span class="handle">BREAKFAST012</span>
-        </h1>
-        <div class="hero-subtitle">
-          TECHNICAL ARTIST · MOCAP &amp; RIGGING PIPELINE ENGINEER · EMBODIED MEDIA RESEARCHER
-        </div>
-
-        <p class="hero-lead">
-          Engineering production <strong>3A optical/inertial motion capture &amp; cross-skeleton retargeting pipelines</strong> at
-          <strong>Tencent IEGG (London)</strong>, authoring <strong>Motion Forge</strong> (an Unreal Engine 5 C++/Python salience-guided animation &amp; biomechanical refinement engine),
-          and investigating <strong>embodied XR, multi-agent simulation, and sensor-driven interaction</strong> across
-          <strong>UAL</strong>, <strong>HKUST</strong>, and <strong>UCL MPBE</strong>.
-        </p>
-
-        <!-- Highlight Badges Bar -->
-        <div class="highlight-badges-bar">
-          <div class="highlight-badge">
-            <span class="badge-dot"></span>
-            <span>Tencent IEGG Technical Artist (Rank #1)</span>
-          </div>
-          <div class="highlight-badge amber">
-            <span class="badge-dot"></span>
-            <span>IEEE TVCG Best Paper Award (ISMAR 2026)</span>
-          </div>
-          <div class="highlight-badge">
-            <span class="badge-dot"></span>
-            <span>IEEE VR 2026 XR Gallery</span>
-          </div>
-          <div class="highlight-badge">
-            <span class="badge-dot"></span>
-            <span>UAL First-Class Honours (14.3/15, 1st)</span>
+      <div class="info-dual-grid">
+        <!-- Column 1: Original Bio from breakfast012.com/contact -->
+        <div class="info-col">
+          <div class="info-block">
+            <div class="clause-heading">01. BIO</div>
+            <p class="info-text">
+              Jiayi Wu is an interdisciplinary artist and designer working at the intersection of immersive media, sensor-based interaction, and social storytelling. Her practice explores how digital systems can reflect, challenge, and reframe emotional and bodily experience.
+            </p>
+            <p class="info-text">
+              Drawing from motion capture, VR, and haptic feedback, she develops interactive environments that respond to gesture, presence, and memory. Jiayi’s work is driven by a curiosity about how humans inhabit technological spaces, particularly in contexts shaped by constraint, disconnection, or resistance. Through each project, she asks how emerging media can expand our ways of sensing, sharing, and feeling together.
+            </p>
           </div>
         </div>
 
-        <!-- Hero Actions -->
-        <div class="hero-actions">
-          <button type="button" class="btn-primary-cyan" id="btn-open-showreel">
-            <span>▶</span> LAUNCH FULLSCREEN SHOWREEL THEATER (WITH SOUND · 15 STREAMS)
-          </button>
-          <a href="#matrix-section" class="btn-terminal-ghost">
-            <span>↓</span> EXPLORE PROJECT MATRIX (23 PROJECTS · 731 4K/HD STILLS)
-          </a>
-          <a href="https://github.com/Breakfast012" target="_blank" rel="noopener noreferrer" class="btn-terminal-ghost">
-            <span>↗</span> GITHUB // @Breakfast012
-          </a>
-          <a href="https://www.linkedin.com/in/jiayi-wu-breakfast012/?locale=en_US" target="_blank" rel="noopener noreferrer" class="btn-terminal-ghost">
-            <span>↗</span> LINKEDIN
-          </a>
+        <!-- Column 2: Original Contact & Archive Structure -->
+        <div class="info-col">
+          <div class="info-block">
+            <div class="clause-heading">02. CONTACT</div>
+            <div class="contact-lines">
+              <div>HANDLE: <span class="mono-val">@Breakfast012</span></div>
+              <div>EMAIL: <a href="mailto:Breakfast012@outlook.com">Breakfast012@outlook.com</a> <button type="button" class="copy-inline-btn" data-copy="Breakfast012@outlook.com">[COPY]</button></div>
+              <div>LINKEDIN: <a href="https://www.linkedin.com/in/jiayi-wu-breakfast012/?locale=en_US" target="_blank" rel="noopener noreferrer">linkedin.com/in/jiayi-wu-breakfast012 ↗</a></div>
+              <div>INSTAGRAM: <a href="https://www.instagram.com/breakfast012/" target="_blank" rel="noopener noreferrer">@breakfast012 ↗</a></div>
+            </div>
+          </div>
+
+          <div class="info-block">
+            <div class="clause-heading">03. PORTFOLIO SECTIONS</div>
+            <div class="cv-table">
+              <div class="cv-row">
+                <span class="cv-date">WORK (12)</span>
+                <div class="cv-detail">EveryMacbeth (2026) · BoundFusion (2026) · The Unchanging Change (2025) · Terms and Conditions (2025) · Edenflux (2025) · Erased Resistance (2025) · Boss Plz - VR Game (2025) · Unseemly (2024) · Desert Drifter (2024) · Endless (2024) · BlackBox (2023) · Overseer (2023)</div>
+              </div>
+              <div class="cv-row">
+                <span class="cv-date">RESEARCH (2)</span>
+                <div class="cv-detail">VR/AI Multi-agent Roleplay System - Early Prototype (2025) · VR Body Mapping - Pedagogy Practice (2025)</div>
+              </div>
+              <div class="cv-row">
+                <span class="cv-date">COLLABORATION (7)</span>
+                <div class="cv-detail">Unexpected × Ericaliga (2024) · “Absolute” Chill Jazz Concert (2023) · Enjoy the Spring Festival by Music × WeChat (2022) · Angel School (2022) · Empty Space (2021) · Poster Design (2024) · Album Design (2024)</div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
   <!-- ====================================================================
-       STICKY IDENTITY MODE SWITCHER
+       MAIN WORKSPACE: SWISS INDEX TABLE + MASILIANG PROTOCOL STREAM
        ==================================================================== -->
-  <nav class="identity-switcher-wrap" aria-label="Identity Mode Filter">
-    <div class="identity-switcher-inner">
-      <div class="identity-tabs">
-        <button type="button" class="identity-tab active" data-filter="all">
-          <span>[ALL WORKS]</span>
-          <span class="count-pill">23</span>
-        </button>
-        <button type="button" class="identity-tab" data-filter="tech">
-          <span>[01 // TECH &amp; PIPELINE]</span>
-          <span class="count-pill">8</span>
-        </button>
-        <button type="button" class="identity-tab" data-filter="research">
-          <span>[02 // RESEARCH &amp; PUBLICATIONS]</span>
-          <span class="count-pill">11</span>
-        </button>
-        <button type="button" class="identity-tab" data-filter="art">
-          <span>[03 // IMMERSIVE ART &amp; THEATRE]</span>
-          <span class="count-pill">11</span>
-        </button>
-        <button type="button" class="identity-tab" data-filter="commercial">
-          <span>[04 // COMMERCIAL &amp; DESIGN]</span>
-          <span class="count-pill">7</span>
-        </button>
+  <main class="archive-main">
+
+    <!-- ==================================================================
+         SWISS ARCHIVAL INDEX TABLE (EDGAR RODRIGUEZ STYLE)
+         ================================================================== -->
+    <section class="index-section" id="index-section" aria-label="Index of Works">
+      <div class="index-header-row">
+        <div class="index-header-left">
+          <span class="mono-label" id="index-status-line">INDEX OF WORKS // 21 ARCHIVED PROJECTS (12 WORK · 2 RESEARCH · 7 COLLABORATION)</span>
+        </div>
+        <div class="index-header-right">
+          <input
+            type="search"
+            id="archive-search"
+            class="archive-search-input"
+            placeholder="Search title, year, credits..."
+            aria-label="Filter archive by keyword"
+          />
+          <button type="button" class="text-action-btn" id="btn-collapse-index">[ HIDE INDEX ↑ ]</button>
+        </div>
       </div>
 
-      <div class="filter-search-box">
-        <input
-          type="search"
-          id="project-search-input"
-          class="terminal-input"
-          placeholder="Search UE5, Mocap, VR, 2026..."
-          aria-label="Filter projects by keyword"
-        />
+      <div class="swiss-table-wrap" id="swiss-table-wrap">
+        <table class="swiss-index-table" id="swiss-index-table">
+          <thead>
+            <tr>
+              <th class="col-no">NO.</th>
+              <th class="col-year">YEAR</th>
+              <th class="col-title">TITLE</th>
+              <th class="col-cat">SECTION</th>
+              <th class="col-medium">DOCUMENTATION</th>
+              <th class="col-venue">DETAILS / CREDITS</th>
+            </tr>
+          </thead>
+          <tbody id="swiss-index-tbody"></tbody>
+        </table>
       </div>
+    </section>
+
+    <!-- Floating Rectangular Image Preview on Index Row Hover -->
+    <div class="index-hover-preview" id="index-hover-preview" aria-hidden="true">
+      <img id="index-hover-img" src="" alt="" />
+      <div class="index-hover-caption" id="index-hover-caption"></div>
     </div>
-  </nav>
 
-  <!-- ====================================================================
-       MAIN CONSOLE WORKSPACE
-       ==================================================================== -->
-  <main class="console-main">
-
-    <!-- PROJECT MATRIX SECTION -->
-    <section id="matrix-section">
-      <div class="section-header-bar">
-        <div>
-          <div class="section-kicker">INTERACTIVE PORTFOLIO MATRIX // CLICK ANY CARD FOR FULL VIDEOS, CANVA DECKS &amp; 3840px GALLERY</div>
-          <h2 class="section-title" id="matrix-section-title">ALL EMBODIED &amp; TECHNICAL WORKS // COMPLETE MATRIX</h2>
-        </div>
-        <div class="section-meta-note" id="matrix-section-meta">
-          SHOWING 23 PROJECTS · 731 ARCHIVE IMAGES · 16 EMBED STREAMS
-        </div>
-      </div>
-
-      <div class="projects-grid" id="projects-grid"></div>
-    </section>
-
-    <!-- ACADEMIC PUBLICATIONS & PEER-REVIEWED VENUES SECTION -->
-    <section id="publications-section" class="publications-module">
-      <div class="section-header-bar" style="margin-bottom:22px;">
-        <div>
-          <div class="section-kicker">02 // ACADEMIC PUBLICATIONS &amp; PEER-REVIEWED VENUES</div>
-          <h2 class="section-title">Selected Papers, Best Paper Awards &amp; XR Exhibitions</h2>
-        </div>
-        <div class="section-meta-note">
-          IEEE TVCG · IEEE ISMAR 2026 · IEEE VRW 2026 (×2 1st Author) · IEEE VR 2026 XR Gallery · IEEE VR 2027
-        </div>
-      </div>
-
-      <div class="pub-grid" id="publications-grid"></div>
-    </section>
-
-    <!-- ABOUT & CONTACT TERMINAL -->
-    <section id="about-terminal" class="about-terminal-section">
-      <div class="section-header-bar">
-        <div>
-          <div class="section-kicker">TERMINAL // BIOGRAPHY, RESEARCH DIRECTIONS &amp; DIRECT CHANNELS</div>
-          <h2 class="section-title">About Jiayi Wu (@Breakfast012)</h2>
-        </div>
-        <div class="section-meta-note">LONDON, UK · TENCENT IEGG · UAL · HKUST · UCL MPBE</div>
-      </div>
-
-      <div class="about-grid">
-        <div>
-          <p class="bio-paragraph">
-            <strong>Jiayi Wu (吴嘉怡, @Breakfast012)</strong> is a London-based <strong>Technical Artist</strong>,
-            <strong>Mocap &amp; Rigging Pipeline Engineer</strong>, and <strong>Embodied Media Researcher</strong> working at the intersection
-            of 3A character animation pipelines, biomechanical motion capture refinement, immersive XR systems, and sensor-based interaction.
-          </p>
-          <p class="bio-paragraph">
-            At <strong>Tencent Interactive Entertainment Group (IEGG, London)</strong>, she engineers production optical and inertial motion capture
-            workflows (<strong>Vicon, Xsens, Faceware</strong>), cross-skeleton retargeting, skeletal and facial rigging (IK/FK, Swing-Twist, FACS BlendShapes),
-            and <strong>Unreal Engine 5 C++/Python</strong> animation toolchains—achieving <strong>Rank #1 in performance evaluation</strong> across her graduate cohort.
-            She is the creator of <strong>Motion Forge</strong>, a production UE5 C++/Python salience-guided animation and biomechanical mocap engine.
-          </p>
-          <p class="bio-paragraph">
-            She graduated with <strong>First-Class Honours (14.3/15, Ranked 1st in Cohort)</strong> in <em>BA (Hons) Immersive Media and Mixed Reality</em>
-            from <strong>University of the Arts London (UAL)</strong>, and conducted Turing Scheme-funded visiting research at
-            <strong>The Hong Kong University of Science and Technology (HKUST)</strong>, where she also served as a Unity real-time systems lecturer.
-            Her academic and artistic work has been honored with the <strong>IEEE TVCG Best Paper Award (IEEE ISMAR 2026)</strong>,
-            <strong>two First-Author IEEE VRW 2026 papers</strong>, the <strong>Tom Burns Memorial Award 2025</strong>,
-            the <strong>UAL People’s Prize for Equality and Diversity 2025</strong>, and the <strong>IEEE VR 2026 XR Gallery shortlist</strong>.
-          </p>
-
-          <div class="bio-quote-box">
-            <div class="meta-block-label">ARTIST &amp; DESIGNER STATEMENT (ARCHIVE /CONTACT)</div>
-            “Jiayi Wu is an interdisciplinary artist and designer working at the intersection of immersive media, sensor-based interaction, and social storytelling. Her practice explores how digital systems can reflect, challenge, and reframe emotional and bodily experience. Drawing from motion capture, VR, and haptic feedback, she develops interactive environments that respond to gesture, presence, and memory. Jiayi’s work is driven by a curiosity about how humans inhabit technological spaces, particularly in contexts shaped by constraint, disconnection, or resistance. Through each project, she asks how emerging media can expand our ways of sensing, sharing, and feeling together.”
-          </div>
-        </div>
-
-        <div>
-          <div class="meta-block-label" style="font-size:12px;margin-bottom:12px;">FIVE CORE RESEARCH &amp; ENGINEERING DIRECTIONS</div>
-          <div class="research-list">
-            <div class="research-item">
-              <div class="research-item-head">
-                <span class="research-item-idx">[01]</span>
-                <span>Large-Scale Human, Hand &amp; Facial Motion Capture &amp; 3D Pose Tracking</span>
-              </div>
-              <div class="research-item-zh">大规模人体/手部/面部动捕追踪与 3D 姿态估计</div>
-              <div class="research-item-tech">Vicon Optical · Xsens Inertial · Faceware Facial · Multi-View / Monocular AI Markerless Tracking</div>
-            </div>
-
-            <div class="research-item">
-              <div class="research-item-head">
-                <span class="research-item-idx">[02]</span>
-                <span>Cross-Skeleton Kinematic Retargeting &amp; Skeletal/Facial Rigging</span>
-              </div>
-              <div class="research-item-zh">跨骨骼运动学重定向与高精骨骼/面部绑定解算</div>
-              <div class="research-item-tech">IK/FK Systems · Forearm Swing-Twist Decoupling · FACS BlendShapes · Automated UE5 Control Rig</div>
-            </div>
-
-            <div class="research-item">
-              <div class="research-item-head">
-                <span class="research-item-idx">[03]</span>
-                <span>Real-Time Physics Simulation, Biomechanical Constraints &amp; 3D Synthetic Data Pipelines</span>
-              </div>
-              <div class="research-item-zh">实时物理仿真、生物力学连续性约束与 3D 合成数据管线</div>
-              <div class="research-item-tech">Unreal Engine 5 (C++/Slate) · Unity · Python · SO(3) Tangent Denoising · C¹/C² Inertialization</div>
-            </div>
-
-            <div class="research-item">
-              <div class="research-item-head">
-                <span class="research-item-idx">[04]</span>
-                <span>Multimodal Physiological Signal Synchronization &amp; Wearable Brain-Computer Interfaces</span>
-              </div>
-              <div class="research-item-zh">多模态生理信号同步与可穿戴脑机/生物传感交互</div>
-              <div class="research-item-tech">fNIRS / EEG Motion Artifact Suppression · Real-Time ECG / Heart-Rate Biofeedback (Edenflux)</div>
-            </div>
-
-            <div class="research-item">
-              <div class="research-item-head">
-                <span class="research-item-idx">[05]</span>
-                <span>Embodied XR Interaction, Multi-Agent Social Simulation &amp; Digital Theatre</span>
-              </div>
-              <div class="research-item-zh">具身 XR 交互、多智能体角色扮演系统与数字戏剧展演</div>
-              <div class="research-item-tech">VR/MR Haptics · LLM Multi-Agent Avatars · Situated Pedagogy Evaluation · Live Mocap Performance</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="contact-bar">
-        <div style="display:flex;flex-wrap:wrap;gap:12px;">
-          <button type="button" class="email-chip" data-copy-email="Breakfast012@outlook.com" title="Click to copy email">
-            <span>✉</span> Breakfast012@outlook.com <span style="font-size:10px;opacity:0.75;">[COPY]</span>
-          </button>
-          <button type="button" class="email-chip" data-copy-email="j.wu0420235@arts.ac.uk" title="Click to copy academic email">
-            <span>✉</span> j.wu0420235@arts.ac.uk <span style="font-size:10px;opacity:0.75;">[COPY]</span>
-          </button>
-        </div>
-
-        <div style="display:flex;flex-wrap:wrap;gap:10px;">
-          <a href="mailto:Breakfast012@outlook.com" class="hud-btn">SEND EMAIL ↗</a>
-          <a href="https://github.com/Breakfast012" target="_blank" rel="noopener noreferrer" class="hud-btn">GITHUB (@Breakfast012) ↗</a>
-          <a href="https://www.linkedin.com/in/jiayi-wu-breakfast012/?locale=en_US" target="_blank" rel="noopener noreferrer" class="hud-btn">LINKEDIN ↗</a>
-          <a href="https://www.instagram.com/breakfast012/" target="_blank" rel="noopener noreferrer" class="hud-btn">INSTAGRAM (@breakfast012) ↗</a>
-        </div>
-      </div>
+    <!-- ==================================================================
+         SPLIT-COLUMN PROTOCOL STREAM (MASILIANG.COM STYLE)
+         ================================================================== -->
+    <section class="stream-section" id="stream-section" aria-label="Project Stream">
+      <div id="protocol-stream-container"></div>
     </section>
 
   </main>
 
   <!-- ====================================================================
-       CINEMA PROJECT MODAL (FULL-DATA TERMINAL DRAWER)
+       MINIMAL ARCHIVAL FOOTER
        ==================================================================== -->
-  <div class="modal-backdrop" id="project-modal" role="dialog" aria-modal="true">
-    <div class="cinema-modal">
-      <div class="modal-topbar">
-        <div class="modal-breadcrumb" id="project-modal-breadcrumb">TERMINAL // PROJECT INSPECTOR</div>
-        <button type="button" class="modal-close-btn" id="project-modal-close">[ ESC // CLOSE TERMINAL ✕ ]</button>
-      </div>
-      <div class="modal-content-body" id="project-modal-body"></div>
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div>JIAYI WU (@Breakfast012)</div>
+      <div id="footer-stats-line">21 PROJECTS · WORK / RESEARCH / BUSINESS COLLABORATION</div>
+      <div><a href="#top">↑ BACK TO TOP</a></div>
     </div>
-  </div>
+  </footer>
 
   <!-- ====================================================================
-       FULLSCREEN SHOWREEL THEATER MODAL (ALL 15 VIDEO/DECK STREAMS)
+       PURE ARCHIVAL 3840px LIGHTBOX (ZERO BORDER-RADIUS, ZERO GLOW)
        ==================================================================== -->
-  <div class="modal-backdrop" id="showreel-modal" role="dialog" aria-modal="true">
-    <div class="cinema-modal">
-      <div class="modal-topbar">
-        <div class="modal-breadcrumb">SHOWREEL THEATER // VIMEO · ADOBE CCV · YOUTUBE · CANVA STREAMS</div>
-        <button type="button" class="modal-close-btn" id="showreel-close-btn">[ ESC // CLOSE THEATER ✕ ]</button>
-      </div>
-      <div class="modal-content-body">
-        <div class="embed-responsive-16x9" id="showreel-iframe-container" style="border:1px solid var(--cyan);"></div>
-        <div>
-          <div class="meta-block-label">SELECT STREAM FROM FULL ARCHIVE PLAYLIST (15 STREAMS):</div>
-          <div id="showreel-playlist" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:8px;margin-top:10px;"></div>
-        </div>
+  <div class="lightbox-overlay" id="lightbox-overlay" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="lightbox-bar">
+      <div class="lightbox-meta" id="lightbox-meta">// Fig. 01</div>
+      <div class="lightbox-actions">
+        <button type="button" class="text-action-btn" id="lightbox-prev">[ ← PREV ]</button>
+        <button type="button" class="text-action-btn" id="lightbox-next">[ NEXT → ]</button>
+        <a id="lightbox-raw" href="#" target="_blank" rel="noopener noreferrer" class="text-action-btn">[ OPEN FULL RES ↗ ]</a>
+        <button type="button" class="text-action-btn" id="lightbox-close">[ ESC / CLOSE × ]</button>
       </div>
     </div>
-  </div>
-
-  <!-- ====================================================================
-       RAW 26-PAGE / 731-IMAGE ARCHIVE INSPECTOR MODAL
-       ==================================================================== -->
-  <div class="modal-backdrop" id="archive-inspector-modal" role="dialog" aria-modal="true">
-    <div class="cinema-modal">
-      <div class="modal-topbar">
-        <div class="modal-breadcrumb">RAW ARCHIVE INSPECTOR // breakfast012_full_archive.json (26 PAGES · 731 IMAGES · 16 EMBEDS)</div>
-        <button type="button" class="modal-close-btn" id="archive-close-btn">[ ESC // CLOSE INSPECTOR ✕ ]</button>
-      </div>
-      <div class="modal-content-body" id="archive-inspector-body"></div>
-    </div>
-  </div>
-
-  <!-- ====================================================================
-       3840px 4K LIGHTBOX INSPECTOR
-       ==================================================================== -->
-  <div class="lightbox-backdrop" id="lightbox-modal" role="dialog" aria-modal="true">
-    <div class="lightbox-topbar">
-      <span id="lightbox-caption">STILL // 4K LIGHTBOX</span>
-      <div style="display:flex;gap:10px;">
-        <a id="lightbox-raw-link" href="#" target="_blank" rel="noopener noreferrer" class="hud-btn">OPEN ORIGINAL 3840px RAW ↗</a>
-        <button type="button" class="modal-close-btn" id="lightbox-close">[ ESC // CLOSE ✕ ]</button>
-      </div>
-    </div>
-    <div class="lightbox-img-container">
-      <img id="lightbox-img" src="" alt="High-resolution artwork preview" />
-    </div>
-    <div class="lightbox-nav-bar">
-      <button type="button" class="btn-terminal-ghost" id="lightbox-prev">← PREV STILL</button>
-      <button type="button" class="btn-terminal-ghost" id="lightbox-next">NEXT STILL →</button>
+    <div class="lightbox-stage" id="lightbox-stage">
+      <img id="lightbox-img" src="" alt="Full-resolution project documentation" />
     </div>
   </div>
 
   <script src="js/projects-data.js"></script>
-  <script src="js/skeleton-canvas.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
