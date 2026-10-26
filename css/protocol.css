@@ -6,14 +6,15 @@
 
 :root {
   --bg: #ffffff;
-  --bg-subtle: #f7f7f7;
+  --bg-paper: #f6f5f2;
+  --bg-subtle: #f6f5f2;
   --ink: #111111;
-  --ink-secondary: #444444;
-  --ink-muted: #767676;
+  --ink-secondary: #555555;
+  --ink-muted: #666666;
   --rule-strong: #111111;
-  --rule-light: #dcdcdc;
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --rule-light: #d8d6d0;
+  --font-sans: 'Neue Haas Grotesk Display Pro', 'Neue Haas Grotesk Text Pro', 'Neue Haas Unica', 'Helvetica Neue', 'Inter', -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Courier New', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
 *,
@@ -418,37 +419,44 @@ button {
   font-size: 12.5px;
 }
 
-/* Floating Hover Image Preview */
+/* Floating Hover Image Preview (Uncropped Native Aspect Ratio) */
 .index-hover-preview {
   position: fixed;
   right: 32px;
   bottom: 32px;
-  width: 300px;
-  background: var(--bg);
-  border: 1px solid var(--rule-strong);
+  width: auto;
+  height: auto;
+  max-width: 360px;
+  background: #f6f5f2;
+  border: 1px solid #111111;
   z-index: 90;
   pointer-events: none;
   display: none;
 }
 
 .index-hover-preview.visible {
-  display: block;
+  display: inline-flex;
+  flex-direction: column;
 }
 
 .index-hover-preview img {
   display: block;
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
-  border-bottom: 1px solid var(--rule-strong);
+  width: auto;
+  height: auto;
+  max-width: 360px;
+  max-height: 420px;
+  background: #f6f5f2;
+  border-bottom: 1px solid #111111;
 }
 
 .index-hover-caption {
   font-family: var(--font-mono);
   font-size: 11px;
   padding: 6px 8px;
+  width: 0;
+  min-width: 100%;
   color: var(--ink);
-  background: var(--bg);
+  background: #f6f5f2;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -461,19 +469,24 @@ button {
 
 .protocol-item {
   display: grid;
-  grid-template-columns: 340px 1fr;
+  grid-template-columns: minmax(190px, 23%) minmax(0, 72%);
+  column-gap: max(5%, 48px);
+  justify-content: space-between;
   border-bottom: 1px solid var(--rule-strong);
+  background: var(--bg);
 }
 
 .protocol-left {
-  padding: 24px;
-  border-right: 1px solid var(--rule-strong);
+  width: 100%;
+  max-width: 270px;
+  padding: 28px 0 28px 24px;
   background: var(--bg);
 }
 
 .protocol-sticky-meta {
   position: sticky;
   top: 56px;
+  max-width: 30ch;
 }
 
 .meta-ref-no {
@@ -482,22 +495,25 @@ button {
   color: var(--ink-muted);
   letter-spacing: 0.05em;
   margin-bottom: 6px;
+  max-width: 30ch;
 }
 
 .meta-title {
-  font-size: 19px;
+  font-size: 18px;
   font-weight: 600;
   line-height: 1.25;
   margin-bottom: 8px;
   letter-spacing: -0.01em;
+  max-width: 30ch;
 }
 
 .meta-slash-lines {
   font-family: var(--font-mono);
   font-size: 11.5px;
   color: var(--ink-secondary);
-  line-height: 1.6;
+  line-height: 1.55;
   margin-bottom: 12px;
+  max-width: 30ch;
 }
 
 .meta-year {
@@ -511,21 +527,23 @@ button {
 }
 
 .meta-description {
-  font-size: 13.5px;
-  line-height: 1.6;
+  font-size: 13px;
+  line-height: 1.55;
   color: var(--ink);
   margin-bottom: 14px;
+  max-width: 30ch;
   white-space: pre-line;
 }
 
 .meta-credits-list {
   font-family: var(--font-mono);
   font-size: 11.5px;
-  line-height: 1.65;
+  line-height: 1.6;
   color: var(--ink-secondary);
   padding-top: 10px;
   border-top: 1px solid var(--rule-light);
   margin-bottom: 14px;
+  max-width: 30ch;
 }
 
 .meta-links-row {
@@ -533,6 +551,7 @@ button {
   flex-wrap: wrap;
   gap: 6px;
   margin-top: 10px;
+  max-width: 30ch;
 }
 
 .meta-link-pill {
@@ -551,33 +570,94 @@ button {
 }
 
 .protocol-right {
-  padding: 24px;
+  width: 100%;
+  padding: 28px 24px 28px 0;
   background: var(--bg);
 }
 
-/* Video / Deck Embeds inside Stream */
+/* Video / Deck Embeds inside Stream (Silent Archival Cover -> Seamless In-place Player) */
 .stream-embeds-stack {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  margin-bottom: 24px;
+  gap: 24px;
+  margin-bottom: 28px;
 }
 
 .embed-frame-block {
+  border: none;
+  background: var(--bg);
+}
+
+.embed-frame-block.is-playing .embed-stage {
   border: 1px solid var(--rule-strong);
   background: #000000;
+}
+
+.embed-stage {
+  position: relative;
+  width: 100%;
+  background: var(--bg-paper);
+}
+
+.embed-silent-cover {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: var(--bg-paper);
+  cursor: pointer;
+  text-align: left;
+  overflow: hidden;
+}
+
+.embed-cover-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 680px;
+  object-fit: contain;
+  background: var(--bg-paper);
+  transition: opacity 0.15s ease;
+}
+
+.embed-silent-cover:hover .embed-cover-img {
+  opacity: 0.92;
+}
+
+.embed-play-badge {
+  position: absolute;
+  left: 14px;
+  bottom: 14px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+  padding: 6px 10px;
+  background: #111111;
+  color: #ffffff;
+  border: 1px solid #111111;
+  pointer-events: none;
+}
+
+.embed-silent-cover:hover .embed-play-badge {
+  background: #ffffff;
+  color: #111111;
 }
 
 .embed-frame-caption {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 6px 10px;
-  background: var(--bg-subtle);
-  border-bottom: 1px solid var(--rule-strong);
+  padding: 6px 0 0;
+  margin-top: 6px;
+  border-top: 1px solid var(--rule-light);
+  background: var(--bg);
   font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--ink-secondary);
+  font-size: 10.5px;
+  color: var(--ink-muted);
 }
 
 .embed-aspect-16x9 {
@@ -737,15 +817,32 @@ button {
 
   .protocol-item {
     grid-template-columns: 1fr;
+    column-gap: 0;
   }
 
   .protocol-left {
+    max-width: 100%;
+    padding: 20px 24px;
     border-right: none;
     border-bottom: 1px solid var(--rule-light);
   }
 
+  .protocol-sticky-meta,
+  .meta-ref-no,
+  .meta-title,
+  .meta-slash-lines,
+  .meta-description,
+  .meta-credits-list,
+  .meta-links-row {
+    max-width: 65ch;
+  }
+
   .protocol-sticky-meta {
     position: static;
+  }
+
+  .protocol-right {
+    padding: 20px 24px;
   }
 
   .index-hover-preview {

@@ -107,9 +107,14 @@
         }
         const mediaSummary = mediaParts.join(' · ') || 'ARCHIVE RECORD';
         const noteLine = p.short_note || '—';
+        const previewCover =
+          (p.unique_stills &&
+            p.unique_stills[0] &&
+            (p.unique_stills[0].display_url || p.unique_stills[0].full_url)) ||
+          p.cover_url;
 
         return `
-          <tr data-project-id="${escapeHtml(p.id)}" data-cover="${escapeHtml(p.cover_url)}" data-caption="${escapeHtml(noStr + ' // ' + p.title + ' (' + p.year + ')')}">
+          <tr data-project-id="${escapeHtml(p.id)}" data-cover="${escapeHtml(previewCover)}" data-caption="${escapeHtml(noStr + ' // ' + p.title + ' (' + p.year + ')')}">
             <td class="col-no mono-cell">${noStr}</td>
             <td class="col-year mono-cell">${escapeHtml(p.year)}</td>
             <td class="col-title">${escapeHtml(p.title)}</td>
@@ -126,7 +131,11 @@
         const cover = row.getAttribute('data-cover');
         const cap = row.getAttribute('data-caption');
         if (cover && hoverPreview && hoverImg && hoverCaption) {
-          hoverImg.src = cover;
+          hoverImg.removeAttribute('width');
+          hoverImg.removeAttribute('height');
+          if (hoverImg.getAttribute('src') !== cover) {
+            hoverImg.src = cover;
+          }
           hoverCaption.textContent = cap || '';
           hoverPreview.classList.add('visible');
         }
@@ -183,30 +192,52 @@
           </div>
         `;
 
-        // Embeds (Vimeo, Adobe CCV, YouTube, Canva)
+        // Embeds (Vimeo, Adobe CCV, YouTube, Canva) -> Silent Archival Cover + In-place Play
+        const primaryStillUrl =
+          (p.unique_stills &&
+            p.unique_stills[0] &&
+            (p.unique_stills[0].full_url || p.unique_stills[0].display_url)) ||
+          p.cover_url;
+
         const embedsHtml =
           p.embeds && p.embeds.length > 0
             ? `<div class="stream-embeds-stack">
                 ${p.embeds
-                  .map(
-                    (emb, eIdx) => `
-                  <div class="embed-frame-block">
+                  .map((emb, eIdx) => {
+                    const embNo = String(eIdx + 1).padStart(2, '0');
+                    const coverStillUrl =
+                      (p.unique_stills &&
+                        p.unique_stills[eIdx] &&
+                        (p.unique_stills[eIdx].full_url || p.unique_stills[eIdx].display_url)) ||
+                      primaryStillUrl;
+                    return `
+                  <div
+                    class="embed-frame-block"
+                    data-embed-src="${escapeHtml(emb.src)}"
+                    data-embed-title="${escapeHtml(p.title + ' Stream ' + (eIdx + 1))}"
+                  >
+                    <div class="embed-stage">
+                      <button
+                        type="button"
+                        class="embed-silent-cover"
+                        aria-label="Play ${escapeHtml(p.title)} video record ${embNo}"
+                      >
+                        <img
+                          class="embed-cover-img"
+                          src="${escapeHtml(coverStillUrl)}"
+                          alt="${escapeHtml(p.title + ' — Video Record ' + embNo)}"
+                          loading="lazy"
+                        />
+                        <span class="embed-play-badge">[ ▶ PLAY VIDEO RECORD // ${embNo} ]</span>
+                      </button>
+                    </div>
                     <div class="embed-frame-caption">
-                      <span>STREAM ${String(eIdx + 1).padStart(2, '0')} // ${escapeHtml(emb.label || emb.type.toUpperCase())}</span>
+                      <span>// VIDEO.${embNo} — ${escapeHtml(emb.label || emb.type.toUpperCase())}</span>
                       <a href="${escapeHtml(emb.src)}" target="_blank" rel="noopener noreferrer">[ OPEN STREAM ↗ ]</a>
                     </div>
-                    <div class="embed-aspect-16x9">
-                      <iframe
-                        src="${escapeHtml(emb.src)}"
-                        title="${escapeHtml(p.title + ' Stream ' + (eIdx + 1))}"
-                        loading="lazy"
-                        allow="autoplay; fullscreen; picture-in-picture"
-                        allowfullscreen
-                      ></iframe>
-                    </div>
                   </div>
-                `
-                  )
+                `;
+                  })
                   .join('')}
               </div>`
             : '';
@@ -285,6 +316,35 @@
         `;
       })
       .join('');
+
+    // Bind Silent Archival Video Covers -> Seamless In-place Iframe Replacement
+    streamContainer.querySelectorAll('.embed-silent-cover').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const block = btn.closest('.embed-frame-block');
+        const stage = btn.closest('.embed-stage');
+        if (!block || !stage) return;
+        const rawSrc = block.getAttribute('data-embed-src') || '';
+        const title = block.getAttribute('data-embed-title') || 'Embedded Stream';
+        if (!rawSrc) return;
+
+        let playSrc = rawSrc;
+        if (!rawSrc.includes('canva.com') && !rawSrc.includes('autoplay=')) {
+          playSrc = rawSrc + (rawSrc.includes('?') ? '&' : '?') + 'autoplay=1';
+        }
+
+        block.classList.add('is-playing');
+        stage.innerHTML = `
+          <div class="embed-aspect-16x9">
+            <iframe
+              src="${escapeHtml(playSrc)}"
+              title="${escapeHtml(title)}"
+              allow="autoplay; fullscreen; picture-in-picture"
+              allowfullscreen
+            ></iframe>
+          </div>
+        `;
+      });
+    });
 
     // Bind Raw Variant toggles
     streamContainer.querySelectorAll('.btn-toggle-raw').forEach((btn) => {
