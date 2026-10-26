@@ -575,7 +575,7 @@ button {
   background: var(--bg);
 }
 
-/* Video / Deck Embeds inside Stream (Silent Archival Cover -> Seamless In-place Player) */
+/* Video / Deck Embeds inside Stream (Native 16:9 Widescreen Player) */
 .stream-embeds-stack {
   display: flex;
   flex-direction: column;
@@ -588,63 +588,22 @@ button {
   background: var(--bg);
 }
 
-.embed-frame-block.is-playing .embed-stage {
-  border: 1px solid var(--rule-strong);
-  background: #000000;
-}
-
-.embed-stage {
+.embed-aspect-16x9 {
   position: relative;
   width: 100%;
-  background: var(--bg-paper);
-}
-
-.embed-silent-cover {
-  position: relative;
-  display: block;
-  width: 100%;
-  padding: 0;
-  margin: 0;
-  border: none;
-  background: var(--bg-paper);
-  cursor: pointer;
-  text-align: left;
+  aspect-ratio: 16 / 9;
+  background: #111111;
+  border: 1px solid #d8d6d0;
   overflow: hidden;
 }
 
-.embed-cover-img {
-  display: block;
-  width: 100%;
-  height: auto;
-  max-height: 680px;
-  object-fit: contain;
-  background: var(--bg-paper);
-  transition: opacity 0.15s ease;
-}
-
-.embed-silent-cover:hover .embed-cover-img {
-  opacity: 0.92;
-}
-
-.embed-play-badge {
+.embed-aspect-16x9 iframe {
   position: absolute;
-  left: 14px;
-  bottom: 14px;
-  font-family: var(--font-mono);
-  font-size: 11.5px;
-  font-weight: 500;
-  letter-spacing: 0.04em;
-  line-height: 1.2;
-  padding: 6px 10px;
-  background: #111111;
-  color: #ffffff;
-  border: 1px solid #111111;
-  pointer-events: none;
-}
-
-.embed-silent-cover:hover .embed-play-badge {
-  background: #ffffff;
-  color: #111111;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
 }
 
 .embed-frame-caption {
@@ -658,21 +617,6 @@ button {
   font-family: var(--font-mono);
   font-size: 10.5px;
   color: var(--ink-muted);
-}
-
-.embed-aspect-16x9 {
-  position: relative;
-  width: 100%;
-  padding-top: 56.25%;
-  background: #000000;
-}
-
-.embed-aspect-16x9 iframe {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  border: 0;
 }
 
 /* Still Figures Grid inside Stream */
